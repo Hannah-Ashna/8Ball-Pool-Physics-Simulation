@@ -5,10 +5,10 @@
 // and how you would use the physics component of the SimSphereMover to produce
 // the collision response - i.e. how they bounce off each other.
 
-// The scene is set up so that if you just press the "W" key, ball1 sould move and collide with ball2
+// The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
 
 SimSurfaceMesh terrain; 
-SimSphereMover ball1;
+SimSphereMover ball;
 
 ArrayList<SimBoxMover> walls = new ArrayList<SimBoxMover>();
 SimBoxMover wallLeft;
@@ -17,6 +17,7 @@ SimBoxMover wallTop;
 SimBoxMover wallBottom;
 SimBoxMover wallDivider;
 SimBoxMover floorBase;
+SimBoxMover angledBox;
 
 SimBoxMover testBox1;
 SimBoxMover testBox2;
@@ -27,12 +28,12 @@ void setup(){
   size(900, 700, P3D);
   
   // Setup Pinball Machine Walls
-  wallLeft = new SimBoxMover(vec(0, -20, 0), vec(0, 0, 0), vec(900,20,20));
-  wallRight = new SimBoxMover(vec(0,-20, 700), vec(0, 0, 0), vec(900,20,20));
-  wallTop = new SimBoxMover(vec(875,-20,0), vec(0, 0, 0), vec(28,20,700));
-  wallBottom = new SimBoxMover(vec(0,-20,0), vec(0, 0, 0), vec(20,20,700));
-  wallDivider = new SimBoxMover(vec(0,-20,600), vec(0, 0, 0), vec(600,20,20));
-  floorBase = new SimBoxMover(vec(0,0,0), vec(0, 0, 0), vec(900,10,700));
+  wallLeft = new SimBoxMover(vec(0, -20, 0), 0,0,0, vec(0, 0, 0), vec(900,20,20));
+  wallRight = new SimBoxMover(vec(0,-20, 700), 0,0,0, vec(0, 0, 0), vec(900,20,20));
+  wallTop = new SimBoxMover(vec(875,-20,0), 0,0,0, vec(0, 0, 0), vec(28,20,700));
+  wallBottom = new SimBoxMover(vec(0,-20,0), 0,0,0, vec(0, 0, 0), vec(20,20,700));
+  wallDivider = new SimBoxMover(vec(0,-20,600), 0,0,0, vec(0, 0, 0), vec(600,20,20));
+  floorBase = new SimBoxMover(vec(0,0,0), 0,0,0, vec(0, 0, 0), vec(900,10,700));
   walls.add(wallLeft);
   walls.add(wallRight);
   walls.add(wallTop);
@@ -40,11 +41,11 @@ void setup(){
   walls.add(wallDivider);
   walls.add(floorBase);
   
-  // Setup Ball
-  ball1 = new SimSphereMover(vec(800,-15,100), 15.0f);
+  // Setup other Items
+  angledBox = new SimBoxMover(vec(900, -20, 580), 0, 180 ,0, vec(0, 0, 0), vec(160,20,20));
   
-  testBox1 = new SimBoxMover(vec(100,-8,200), vec(0, 0, 0), vec(10,10,10));
-  testBox2 = new SimBoxMover(vec(100,-8,250), vec(0, 0, 0), vec(10,10,10));
+  // Setup Ball
+  ball = new SimSphereMover(vec(100,-15,650), 15.0f);
   
   // Create the SimCamera
   myCamera = new SimCamera();
@@ -58,7 +59,7 @@ void draw(){
 
   noStroke();
   fill(255,0,0);
-  ball1.drawMe();
+  ball.drawMe();
   
   fill(100,0,255);
   wallLeft.drawMe();
@@ -66,17 +67,14 @@ void draw(){
   wallTop.drawMe();
   wallBottom.drawMe();
   wallDivider.drawMe();
+  angledBox.drawMe();
   
   fill(100,0,100);
   floorBase.drawMe();
   
-  fill(255,0,0);
-  testBox1.drawMe();
-  testBox2.drawMe();
-  
   // Apply Gravitational Pull
   PVector force = new PVector(-100, 0, 0);
-  ball1.physics.addForce(force);
+  ball.physics.addForce(force);
   
   wallCollisionChecks();
 
@@ -108,6 +106,11 @@ void keyPressed(){
     return;
   }
   
+  if(key == 'l'){
+    PVector launchForce = new PVector(500, 0, 0);
+    ball.physics.addForce(launchForce);
+  }
+  
   if(key == 'w'){
     // UP
     moveObject(0,-force, 0);
@@ -120,7 +123,10 @@ void keyPressed(){
   
   if(key == CODED){
     if(keyCode == UP){
-      moveObject(-force,0,0);
+      //moveObject(-force,0,0);
+      println("LAUNCH!");
+      PVector launchForce = new PVector(25000, 0, 0);
+      ball.physics.addForce(launchForce);
       }
     if(keyCode == DOWN){ 
      moveObject(force,0,0);
@@ -137,35 +143,30 @@ void keyPressed(){
 void moveObject(float x, float y, float z){
  
   PVector force = new PVector(x, y, z);
-  
-  ball1.physics.addForce(force);
-  //testBox1.physics.addForce(force);
+  ball.physics.addForce(force);
 }
 
 void wallCollisionChecks(){
-  if(ball1.collidesWith(wallLeft) ){
-    println("colliding - bottom wall");
-    ball1.physics.reverseVelocity(wallBottom.physics);
+  if(ball.collidesWith(wallLeft) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball1.collidesWith(wallRight) ){
-    println("colliding - bottom wall");
-    ball1.physics.reverseVelocity(wallBottom.physics);
+  if(ball.collidesWith(wallRight) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball1.collidesWith(wallTop) ){
-    println("colliding - bottom wall");
-    ball1.physics.reverseVelocity(wallBottom.physics);
+  if(ball.collidesWith(wallTop) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball1.collidesWith(wallBottom) ){
-    println("colliding - bottom wall");
-    ball1.physics.reverseVelocity(wallBottom.physics);
+  if(ball.collidesWith(wallBottom) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball1.collidesWith(wallDivider) ){
-    println("colliding - bottom wall");
-    ball1.physics.reverseVelocity(wallBottom.physics);
+  if(ball.collidesWith(wallDivider) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball1.collidesWith(floorBase) ){
-    println("colliding - bottom wall");
-    ball1.physics.noPassThrough();
+  if(ball.collidesWith(angledBox) ){
+    ball.physics.reverseVelocity(wallBottom.physics);
+  }
+  if(ball.collidesWith(floorBase) ){
+    ball.physics.noPassThrough();
   }
 }
 

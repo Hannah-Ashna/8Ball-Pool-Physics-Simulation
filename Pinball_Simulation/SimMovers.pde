@@ -37,12 +37,18 @@ class SimSphereMover extends SimSphere{
 // SimBox Physics
 class SimBoxMover extends SimBox {
   public Mover physics;
+  float Rx;
+  float Ry;
+  float Rz;
   
-  public SimBoxMover(PVector startPos, PVector c1, PVector c2){
+  public SimBoxMover(PVector startPos, float RX, float RY, float RZ, PVector c1, PVector c2){
     super(c1, c2);
+    this.Rx = RX;
+    this.Ry = RY;
+    this.Rz = RZ;
     
     physics = new Mover();
-    setTransformAbs(1,0,0,0, startPos);
+    setTransformAbs(1,Rx,Ry,Rz, startPos);
     physics.location = startPos;
     
     
@@ -51,7 +57,7 @@ class SimBoxMover extends SimBox {
   public void drawMe(){
     physics.update();
     
-    setTransformAbs(1,0,0,0, physics.location);
+    setTransformAbs(1,Rx,Ry,Rz, physics.location);
     
     super.drawMe();
   }
