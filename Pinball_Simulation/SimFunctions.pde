@@ -148,3 +148,38 @@ class SimRect {
     return (this.bottom - this.top);
   }
 }
+
+class RadialForceObject{
+  // this object exerts a radial force away from itself
+  // getForce() returns force exterted at any point in the scene
+  PVector location;
+  float forceAmount;
+  
+  
+  RadialForceObject(PVector loc, float frcAmt){
+    location = loc;
+    forceAmount = frcAmt;
+  }
+  
+
+  PVector getForce(PVector otherObjectLocation){
+    float distance = location.dist(otherObjectLocation);
+    
+    // work out unit direction force towards other point i.e. the "push" direction
+    // and multiply by forceAmt
+    PVector unitForce = PVector.sub(otherObjectLocation,location).normalize();
+    PVector force = unitForce.mult(forceAmount);
+    
+    // return this force divided by the distance
+    return force.div(distance);
+  }
+  
+  
+  void display() {
+    fill(100,100,100);
+    translate(location.x, location.y, -20);
+    sphere(30);
+  }
+  
+  
+}

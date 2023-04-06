@@ -43,7 +43,8 @@ class SimBoxMover extends SimBox {
     
     physics = new Mover();
     setTransformAbs(1,0,0,0, startPos);
-    physics.location = this.getOrigin();
+    physics.location = startPos;
+    
     
   }
   

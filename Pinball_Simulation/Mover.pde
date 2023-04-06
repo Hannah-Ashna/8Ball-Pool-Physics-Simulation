@@ -19,7 +19,7 @@ class Mover {
   Timer timer = new Timer();
   
   PVector location = new PVector(width/2, height/2);
-  PVector velocity = new PVector(0, 0);
+  PVector velocity = new PVector(0, 0, 0);
   PVector acceleration = new PVector(0,0);
   private float mass = 1;
   float radius = 1;
@@ -163,9 +163,17 @@ class Mover {
       this.location.add(amountToMove);
     }
   }
+    
+  void reverseVelocity(Mover otherMover) {
+      if(otherMover == this) return; // can't collide with yourself!
+       
+      this.velocity.x = this.velocity.x * -1;
+      this.velocity.y = 0;
+      this.velocity.z = this.velocity.z * -1;
+  }
   
-  
-  
-  
+  void noPassThrough(){
+      this.velocity.y = 0;
+  }  
 
 }

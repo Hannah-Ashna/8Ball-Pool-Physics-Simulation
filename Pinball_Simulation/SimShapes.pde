@@ -381,6 +381,8 @@ class SimSphere extends SimTransform{
           return intersectsSphere((SimSphere) other);
       case "SimBox": 
           return ((SimBox)other).intersectsSphere(this);
+      case "SimBoxMover": 
+          return ((SimBoxMover)other).intersectsSphere(this);
       case "SimSurfaceMesh": 
           return ((SimSurfaceMesh)other).intersectsSphere(this);
       case "SimModel": 
