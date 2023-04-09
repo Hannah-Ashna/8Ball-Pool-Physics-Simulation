@@ -460,6 +460,9 @@ class SimBox extends SimTransform{
   // It can be be rotated, but used to estimate geometric collisions/intersectons
   PVector minCorner;
   PVector maxCorner;
+  PVector c1Val;
+  PVector c2Val;
+  PVector startPos;
 
   // index of top, and bottom vertices
   int
@@ -482,8 +485,11 @@ class SimBox extends SimTransform{
     setExtents(c1, c2);
   }
 
-  public SimBox(PVector c1, PVector c2) {
+  public SimBox(PVector c1, PVector c2, PVector startPos) {
     setExtents(c1, c2);
+    this.c1Val = c1;
+    this.c2Val = c2;
+    this.startPos = startPos;
   }
 
 
@@ -511,19 +517,12 @@ class SimBox extends SimTransform{
   }
 
   PVector[] getExtents() {
-    //if (isRotated()) {
-      // if rotated, need to find new extents
-      return getExtents(vertices);
-    // }
-
-    
-
-    //PVector[] extents = new PVector[4];
-    //extents[0] = transform(minCorner);
-   // extents[1] = transform(maxCorner);
-    //extents[2] = getCentre();
-    //extents[3] = extents[1]; // max and min corner will be the same distance from centre
-    //return extents;
+    PVector[] extents = new PVector[4];
+    extents[0] = transform(minCorner);
+    extents[1] = transform(maxCorner);
+    extents[2] = getCentre();
+    extents[3] = extents[1]; // max and min corner will be the same distance from centre
+    return extents;
   }
 
   private void createVertices() {
@@ -741,9 +740,47 @@ class SimBox extends SimTransform{
       boolean intersects = dmin <= r2;
       if (intersects) swapColliderIDs(sphere);  
       return intersects;
+      
+    } else {
+      PVector A = startPos;
+      PVector loc1 = new PVector(0, 0, c2Val.z);
+      PVector loc2 = new PVector(c2Val.x, 0, 0);
+      PVector loc3 = new PVector(0, c2Val.y, 0);
+      PVector B = PVector.add(A,transform(loc1));
+      PVector C = PVector.add(A,transform(loc2));
+      PVector D = PVector.add(A,transform(loc3));
+      
+      println("Points: ", A,B,C,D);
+
+      PVector point = sphere.getCentre();
+      
+      // Edges not perpendicular - look for vectors that are perpendicular to the box's faces
+      PVector temp1 = PVector.sub(A,B);
+      PVector temp2 = PVector.sub(A,D);
+      PVector u = temp1.cross(temp2);
+      
+      temp1 = PVector.sub(A,C);
+      temp2 = PVector.sub(A,D);
+      PVector v = temp1.cross(temp2);
+     
+      temp1 = PVector.sub(A,C);
+      temp2 = PVector.sub(A,B);
+      PVector w = temp1.cross(temp2);  
+      
+      PVector u1 = u; PVector u2 = u; PVector u3 = u;
+      PVector v1 = v; PVector v2 = v; PVector v3 = v;
+      PVector w1 = w; PVector w2 = w; PVector w3 = w;
+      
+      
+      /*if ((u.dot(A) <= u1.dot(point) || u2.dot(point) <= u3.dot(C)) &&
+          (v.dot(A) <= v1.dot(point) || v2.dot(point) <= v3.dot(B)) &&
+          (w.dot(A) <= w1.dot(point) || w2.dot(point) <= w3.dot(D))){
+            println("Success!");
+        return true;
+      }*/
     }
 
-    println("SimBox::intersectsSphere not implemented for non AABB's");
+    //println("SimBox::intersectsSphere not implemented for non AABB's");
     return false;
   }
 
@@ -883,7 +920,7 @@ class SimModel extends SimTransform{
     PVector centrePoint = extents[2];
     PVector furthestVerticesFromCentre = extents[3];
     float radius = furthestVerticesFromCentre.dist(centrePoint);
-    boundingBox = new SimBox(extents[0], extents[1]);
+    boundingBox = new SimBox(extents[0], extents[1], null);
     
     
     boundingSphere = new SimSphere(centrePoint, radius);
@@ -972,7 +1009,7 @@ class SimModel extends SimTransform{
     PVector[] transformedVertices = getTransformedVertices();
     PVector[] extents = getExents_DoNotApplyTransform(transformedVertices);
     //println("AABB extents are ", extents[0],extents[1]);
-    return new SimBox(extents[0], extents[1]);
+    return new SimBox(extents[0], extents[1], null);
 
   }
   

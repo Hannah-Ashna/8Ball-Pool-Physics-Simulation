@@ -42,7 +42,7 @@ class SimBoxMover extends SimBox {
   float Rz;
   
   public SimBoxMover(PVector startPos, float RX, float RY, float RZ, PVector c1, PVector c2){
-    super(c1, c2);
+    super(c1, c2, startPos);
     this.Rx = RX;
     this.Ry = RY;
     this.Rz = RZ;

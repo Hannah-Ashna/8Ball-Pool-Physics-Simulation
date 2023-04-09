@@ -19,8 +19,7 @@ SimBoxMover wallDivider;
 SimBoxMover floorBase;
 SimBoxMover angledBox;
 
-SimBoxMover testBox1;
-SimBoxMover testBox2;
+SimSphere point;
 
 SimCamera myCamera;
 
@@ -42,10 +41,12 @@ void setup(){
   walls.add(floorBase);
   
   // Setup other Items
-  angledBox = new SimBoxMover(vec(900, -20, 580), 0, 180 ,0, vec(0, 0, 0), vec(160,20,20));
-  
+  angledBox = new SimBoxMover(vec(900, -20, 580), 0, 1.3*PI ,0, vec(0, 0, 0), vec(160,20,20));
+  point = new SimSphere(vec(1783.8196, -40.0, 1148.2443), 10.0f);
+
   // Setup Ball
   ball = new SimSphereMover(vec(100,-15,650), 15.0f);
+  //ball = new SimSphereMover(vec(100,-15,680), 15.0f);
   
   // Create the SimCamera
   myCamera = new SimCamera();
@@ -68,18 +69,22 @@ void draw(){
   wallBottom.drawMe();
   wallDivider.drawMe();
   angledBox.drawMe();
-  
+   
   fill(100,0,100);
   floorBase.drawMe();
   
+  fill(0,255,0);
+  point.drawMe();
+  
   // Apply Gravitational Pull
-  PVector force = new PVector(-100, 0, 0);
+  PVector force = new PVector(-100, 20, 0);
   ball.physics.addForce(force);
   
   wallCollisionChecks();
 
   myCamera.update();
   drawMajorAxis(new PVector(0,0,0), 200); 
+  
 }
 
 void drawray(SimRay r){
@@ -106,11 +111,6 @@ void keyPressed(){
     return;
   }
   
-  if(key == 'l'){
-    PVector launchForce = new PVector(500, 0, 0);
-    ball.physics.addForce(launchForce);
-  }
-  
   if(key == 'w'){
     // UP
     moveObject(0,-force, 0);
@@ -124,7 +124,6 @@ void keyPressed(){
   if(key == CODED){
     if(keyCode == UP){
       //moveObject(-force,0,0);
-      println("LAUNCH!");
       PVector launchForce = new PVector(25000, 0, 0);
       ball.physics.addForce(launchForce);
       }
@@ -148,22 +147,22 @@ void moveObject(float x, float y, float z){
 
 void wallCollisionChecks(){
   if(ball.collidesWith(wallLeft) ){
-    ball.physics.reverseVelocity(wallBottom.physics);
+    ball.physics.reverseVelocity(wallLeft.physics);
   }
   if(ball.collidesWith(wallRight) ){
-    ball.physics.reverseVelocity(wallBottom.physics);
+    ball.physics.reverseVelocity(wallRight.physics);
   }
   if(ball.collidesWith(wallTop) ){
-    ball.physics.reverseVelocity(wallBottom.physics);
+    ball.physics.reverseVelocity(wallTop.physics);
   }
   if(ball.collidesWith(wallBottom) ){
     ball.physics.reverseVelocity(wallBottom.physics);
   }
   if(ball.collidesWith(wallDivider) ){
-    ball.physics.reverseVelocity(wallBottom.physics);
+    ball.physics.reverseVelocity(wallDivider.physics);
   }
   if(ball.collidesWith(angledBox) ){
-    ball.physics.reverseVelocity(wallBottom.physics);
+    ball.physics.reverseVelocity(angledBox.physics);
   }
   if(ball.collidesWith(floorBase) ){
     ball.physics.noPassThrough();

@@ -170,6 +170,7 @@ class RadialForceObject{
     PVector unitForce = PVector.sub(otherObjectLocation,location).normalize();
     PVector force = unitForce.mult(forceAmount);
     
+    //println ("Ball Loc: ", otherObjectLocation, " Distance: ", force.div(distance));
     // return this force divided by the distance
     return force.div(distance);
   }
@@ -177,8 +178,9 @@ class RadialForceObject{
   
   void display() {
     fill(100,100,100);
-    translate(location.x, location.y, -20);
-    sphere(30);
+    translate(location.x, location.y, location.z);
+    sphere(10);
+    //ellipse(location.x, location.y, 30, 30);
   }
   
   
