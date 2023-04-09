@@ -175,5 +175,12 @@ class Mover {
   void noPassThrough(){
       this.velocity.y = 0;
   }  
+  
+  void angularVelocity(Mover otherMover){
+    if(otherMover == this) return;
+    this.velocity.x = this.velocity.x * 1;
+    this.velocity.y = 0;
+    this.velocity.z = this.velocity.z * -3;
+  }
 
 }

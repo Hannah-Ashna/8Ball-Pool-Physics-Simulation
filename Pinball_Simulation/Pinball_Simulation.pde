@@ -20,6 +20,14 @@ SimBoxMover floorBase;
 SimBoxMover angledBox;
 
 SimSphere point;
+SimSphere point2;
+SimSphere point3;
+SimSphere point4;
+
+RadialForceObject RFO;
+RadialForceObject RFO2;
+RadialForceObject RFO3;
+RadialForceObject RFO4;
 
 SimCamera myCamera;
 
@@ -42,11 +50,15 @@ void setup(){
   
   // Setup other Items
   angledBox = new SimBoxMover(vec(900, -20, 580), 0, 1.3*PI ,0, vec(0, 0, 0), vec(160,20,20));
-  point = new SimSphere(vec(1783.8196, -40.0, 1148.2443), 10.0f);
+  RFO = new RadialForceObject(new PVector(700, -20, 700), 10000);
+ //<>//
+  point = new SimSphere(vec(900.0, -20.0, 580.0 ), 10.0f);
+  point2 = new SimSphere(vec(800, -20, 700), 10.0f);
+  point3 = new SimSphere(vec(880, -20, 560), 10.0f);
+  point4 = new SimSphere(vec(900.0, 0.0, 580.0 ), 10.0f);
 
   // Setup Ball
   ball = new SimSphereMover(vec(100,-15,650), 15.0f);
-  //ball = new SimSphereMover(vec(100,-15,680), 15.0f);
   
   // Create the SimCamera
   myCamera = new SimCamera();
@@ -75,6 +87,9 @@ void draw(){
   
   fill(0,255,0);
   point.drawMe();
+  point2.drawMe();
+  point3.drawMe();
+  point4.drawMe();
   
   // Apply Gravitational Pull
   PVector force = new PVector(-100, 20, 0);
@@ -85,6 +100,10 @@ void draw(){
   myCamera.update();
   drawMajorAxis(new PVector(0,0,0), 200); 
   
+  //RFO.display();
+  //ball.physics.addForce(RFO.getForce(ball.physics.location));
+  
+  ball.physics.update();
 }
 
 void drawray(SimRay r){
@@ -162,7 +181,7 @@ void wallCollisionChecks(){
     ball.physics.reverseVelocity(wallDivider.physics);
   }
   if(ball.collidesWith(angledBox) ){
-    ball.physics.reverseVelocity(angledBox.physics);
+    ball.physics.angularVelocity(angledBox.physics);
   }
   if(ball.collidesWith(floorBase) ){
     ball.physics.noPassThrough();

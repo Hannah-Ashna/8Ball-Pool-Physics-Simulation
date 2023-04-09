@@ -746,11 +746,64 @@ class SimBox extends SimTransform{
       PVector loc1 = new PVector(0, 0, c2Val.z);
       PVector loc2 = new PVector(c2Val.x, 0, 0);
       PVector loc3 = new PVector(0, c2Val.y, 0);
-      PVector B = PVector.add(A,transform(loc1));
-      PVector C = PVector.add(A,transform(loc2));
-      PVector D = PVector.add(A,transform(loc3));
+      PVector B = PVector.add(A,loc1);
+      PVector C = PVector.add(A,loc2);
+      PVector D = PVector.add(A,loc3);
+
+      //println("Points (Before): ", A,B,C,D);
       
-      println("Points: ", A,B,C,D);
+      float[][] projection = {
+        { 1, 0, 0 },
+        { 0, 1, 0 },
+      };
+      
+      float[][] rotationX = {
+        { 1, 0, 0 },
+        { 0, cos(rotateX), -sin(rotateX)},
+        { 0, sin(rotateX), cos(rotateX)}
+      };   
+      
+      float[][] rotationY = {
+        { cos(rotateY), 0, sin(rotateY) },
+        { 0, 1, 0},
+        {-sin(rotateY), 0, cos(rotateY)}
+      };
+      
+      float[][] rotationZ = {
+        { cos(rotateZ), -sin(rotateZ), 0 },
+        { sin(rotateZ), cos(rotateZ), 0 },
+        { 0, 0, 1}
+      };
+      
+      float[][] BMatrix = PVecToMatrix(B);
+      float[][] BRotated = matrixMult(rotationY, BMatrix);
+      BRotated = matrixMult(rotationX, BRotated);
+      BRotated = matrixMult(rotationZ, BRotated);
+      //float[][] BProjected = matrixMult(projection, BRotated);
+      
+      /*printMatrix(BMatrix);
+      printMatrix(projection);
+      printMatrix(BRotated);*/
+      
+      B = MatrixToPVec(BRotated);
+      B.x = B.x * -1;
+      //B.z = B.z * -1;
+
+      
+      float[][] CMatrix = PVecToMatrix(C);
+      float[][] CRotated = matrixMult(rotationY, CMatrix);
+      CRotated = matrixMult(rotationX, CRotated);
+      CRotated = matrixMult(rotationZ, CRotated);      
+      //float[][] CProjected = matrixMult(projection, CRotated);
+      
+      C = MatrixToPVec(CRotated);
+      C.x = C.x * -1;
+      //C.z = C.z * -1;
+      
+      B = new PVector(880, -20, 560);
+      C = new PVector(800, -20, 700);
+      
+      //println("Points (After):  ", A,B,C,D);
 
       PVector point = sphere.getCentre();
       
@@ -771,20 +824,18 @@ class SimBox extends SimTransform{
       PVector v1 = v; PVector v2 = v; PVector v3 = v;
       PVector w1 = w; PVector w2 = w; PVector w3 = w;
       
-      
-      /*if ((u.dot(A) <= u1.dot(point) || u2.dot(point) <= u3.dot(C)) &&
-          (v.dot(A) <= v1.dot(point) || v2.dot(point) <= v3.dot(B)) &&
-          (w.dot(A) <= w1.dot(point) || w2.dot(point) <= w3.dot(D))){
+      if ((u.dot(C) <= u1.dot(point) && u2.dot(point) <= u3.dot(A))||
+           v.dot(A) <= v1.dot(point) && v2.dot(point) <= v3.dot(B) ||
+           w.dot(A) <= w1.dot(point) && w2.dot(point) <= w3.dot(D)){
             println("Success!");
         return true;
-      }*/
+      }
     }
 
     //println("SimBox::intersectsSphere not implemented for non AABB's");
     return false;
   }
-
-
+  
 
   public boolean intersectsBox(SimBox otherBox) {
     // tbd
