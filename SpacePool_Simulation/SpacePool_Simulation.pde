@@ -18,6 +18,11 @@ SimBoxMover wallBottom;
 SimBoxMover tableBase;
 SimModelMover table;
 
+RadialForceObject RFO_L;
+RadialForceObject RFO_R;
+RadialForceObject RFO_T;
+RadialForceObject RFO_B;
+
 SimCamera myCamera;
 SimpleUI gameUI;
 
@@ -30,15 +35,9 @@ void setup(){
   myCamera = new SimCamera();
   myCamera.setPositionAndLookat(vec(-1.8566599, -300.43604, 239.17004),vec(-1.8566885, -299.6257, 238.58406)); 
   myCamera.isMoving = false;
-  myCamera.setHUDArea(20,20,200,200);
+  myCamera.setHUDArea(20,20,220,400);
   
-  // Setup UI
-  gameUI = new SimpleUI();
-  
-  String[] styleMenuItems = {"Standard","Dracula","Icy"};
-  gameUI.addMenu("Table Styles", 30, 110, styleMenuItems);
-  gameUI.addToggleButton("Restart", 30, 30);
-  gameUI.addSlider("Friction", 30, 70).setSliderValue(0.1); //<>//
+  initUI(); //<>//
 }
 
 void init() {
@@ -56,6 +55,11 @@ void init() {
   wallRight = new SimBoxMover(vec(110, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400), color(170,103,8));
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
+  
+  RFO_L = new RadialForceObject(vec(-140, -5, 80), 10000);
+  RFO_R = new RadialForceObject(vec(140, -5,  80), 10000);
+  RFO_T = new RadialForceObject(vec(140, -5, 100), 10000);
+  RFO_B = new RadialForceObject(vec(140, -5, 100), 10000);
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
@@ -77,6 +81,29 @@ void init() {
        
     otherBalls.add(newBall);
   }
+  
+}
+
+void initUI(){
+  // Setup UI
+  gameUI = new SimpleUI();
+  
+  gameUI.addToggleButton("Restart", 30, 30);
+  
+  gameUI.addSimpleButton("Fan (Left)", 30, 65).setSelected(true);
+  gameUI.addSimpleButton("Fan (Right)", 100, 65).setSelected(true);
+  gameUI.addSimpleButton("Fan (Top)", 30, 95).setSelected(true);
+  gameUI.addSimpleButton("Fan (Bottom)", 100, 95).setSelected(true);
+  
+  gameUI.addSlider("Fan (L)", 30, 140);
+  gameUI.addSlider("Fan (R)", 30, 170);
+  gameUI.addSlider("Fan (T)", 30, 200);
+  gameUI.addSlider("Fan (B)", 30, 230);
+  gameUI.addSlider("Friction", 30, 260).setSliderValue(0.1);
+  
+  String[] styleMenuItems = {"Standard","Dracula","Icy"};
+  gameUI.addMenu("Table Styles", 30, 300, styleMenuItems);
+  
   
 }
 
@@ -118,6 +145,8 @@ void draw(){
     
     // Table Wall Collision
     wallCollisionChecks(thisBall);
+    //thisBall.physics.addForce(RFO.getForce(thisBall.physics.location));
+    //thisBall.physics.addForce(RFO2.getForce(thisBall.physics.location));
   }
   
   ball.physics.update();
@@ -127,6 +156,7 @@ void draw(){
   gameUI.update();
   myCamera.endDrawHUD();
   //drawMajorAxis(new PVector(0,0,0), 200); 
+
 }
 
 void drawray(SimRay r){
@@ -235,6 +265,20 @@ void handleUIEvent(UIEventData  uied){
   if(uied.eventIsFromWidget("Friction") ){
     float frictionVal = uied.sliderValue * 5;
     tableBase.physics.frictionAmount = frictionVal;
+  }
+  
+  // Fan Checks
+  if(uied.eventIsFromWidget("Fan (L)") ){
+    RFO_L.toggleActive();
+  }
+  if(uied.eventIsFromWidget("Fan (R)") ){
+    RFO_R.toggleActive();
+  }
+  if(uied.eventIsFromWidget("Fan (T)") ){
+    RFO_T.toggleActive();
+  }
+  if(uied.eventIsFromWidget("Fan (B)") ){
+    RFO_B.toggleActive();
   }
   
   // Check for Style Choices

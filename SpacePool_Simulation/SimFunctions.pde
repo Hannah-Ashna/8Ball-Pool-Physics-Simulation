@@ -154,11 +154,13 @@ class RadialForceObject{
   // getForce() returns force exterted at any point in the scene
   PVector location;
   float forceAmount;
+  boolean isActive;
   
   
   RadialForceObject(PVector loc, float frcAmt){
     location = loc;
     forceAmount = frcAmt;
+    isActive = false;
   }
   
 
@@ -181,6 +183,10 @@ class RadialForceObject{
     translate(location.x, location.y, location.z);
     sphere(10);
     //ellipse(location.x, location.y, 30, 30);
+  }
+  
+  void toggleActive(){
+    isActive = !isActive;
   }
   
   
