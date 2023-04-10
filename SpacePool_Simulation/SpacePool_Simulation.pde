@@ -220,11 +220,14 @@ void updateMouseTracker(){
       
       if (dist < ball.physics.radius+1){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
-        directionVec.mult(1500);
+        directionVec.mult(2000);
         ball.physics.addForce(directionVec);
+        PVector frictionInfluence = PVector.mult(ball.physics.velocity, -tableBase.physics.frictionAmount);
+        print("B: " + ball.physics.velocity);
+        ball.physics.addForce(frictionInfluence);
+        print("A: " + ball.physics.velocity);
+        println();
       }
-      
-      println(dist);
       
       pickedCueBall = true;
       break;
@@ -237,44 +240,15 @@ void updateMouseTracker(){
 
 void keyPressed(){
 
-  float force = 3000f;
-  
   if(key == 'c'){ 
      // toggle the camera isActive field
      myCamera.isMoving = !myCamera.isMoving;
   }
 
-  // if the camera is active don't want the oject to move
-  // so return now
   if( myCamera.isMoving ){
     //println("camera pos ", myCamera.cameraPos, " looKat ", myCamera.cameraLookat);
     return;
   }
-  
-  /*if(key == 'w'){
-    // UP
-    moveObject(0,-force, 0);
-    }
-  
-  if(key == 's'){
-    // DOWN
-    moveObject(0,force, 0);
-    }
-  
-  if(key == CODED){
-    if(keyCode == UP){
-      moveObject(0,0, -force);
-      }
-    if(keyCode == DOWN){ 
-       moveObject(0,0,force);
-      }
-    if(keyCode == LEFT){
-      moveObject(-force,0,0);
-      }
-     if(keyCode == RIGHT){
-       moveObject(force,0,0);   
-       }  
-    }*/
 }
 
 void moveObject(float x, float y, float z){
