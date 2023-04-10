@@ -7,7 +7,7 @@
 
 // The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
 
-ArrayList<SimSphereMover> otherBalls = new ArrayList<SimSphereMover>();
+ArrayList<SimSphereMover> otherBalls;
 
 SimSphereMover ball;
 
@@ -24,7 +24,21 @@ SimpleUI gameUI;
 void setup(){
   size(900, 700, P3D);
   frameRate(120);
-  init(); //<>//
+  init();
+  
+  // Create the SimCamera
+  myCamera = new SimCamera();
+  myCamera.setPositionAndLookat(vec(-1.8566599, -300.43604, 239.17004),vec(-1.8566885, -299.6257, 238.58406)); 
+  myCamera.isMoving = false;
+  myCamera.setHUDArea(20,20,200,200);
+  
+  // Setup UI
+  gameUI = new SimpleUI();
+  
+  String[] styleMenuItems = {"Standard","Dracula","Icy"};
+  gameUI.addMenu("Table Styles", 30, 110, styleMenuItems);
+  gameUI.addToggleButton("Restart", 30, 30);
+  gameUI.addSlider("Friction", 30, 70).setSliderValue(0.1); //<>//
 }
 
 void init() {
@@ -45,6 +59,7 @@ void init() {
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
+  otherBalls = new ArrayList<SimSphereMover>();
   otherBalls.add(ball);
   
   // Setup Other Balls
@@ -62,20 +77,6 @@ void init() {
        
     otherBalls.add(newBall);
   }
-  
-  // Create the SimCamera
-  myCamera = new SimCamera();
-  myCamera.setPositionAndLookat(vec(-1.8566599, -301.43604, 239.17004),vec(-1.8566885, -300.6257, 238.58406)); 
-  myCamera.isMoving = false;
-  myCamera.setHUDArea(20,20,200,200);
-  
-  // Setup UI
-  gameUI = new SimpleUI();
-  
-  String[] styleMenuItems = {"Standard","Dracula","Icy"};
-  gameUI.addMenu("Table Styles", 20, 20, styleMenuItems);
-  gameUI.addToggleButton("Restart", 20,130);
-  gameUI.addSlider("Friction", 20,170).setSliderValue(0.1);
   
 }
 
@@ -225,7 +226,7 @@ void handleUIEvent(UIEventData  uied){
   uied.print(0);
   
   // Reset Game
-  if(uied.eventIsFromWidget("Reset") ){   
+  if(uied.eventIsFromWidget("Restart") ){   
     // Not working yet???
     init();
   }
