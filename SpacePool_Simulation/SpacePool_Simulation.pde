@@ -169,7 +169,7 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
-  
+  // Check if Computer is allowed to and capable of making the next move
   if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
     PVector computerHit = new PVector(random(-80, 80), 0, random(-160, 160));
     computerHit.mult(1500);
@@ -185,7 +185,6 @@ void draw(){
   gameUI.update();
   myCamera.endDrawHUD();
   //drawMajorAxis(new PVector(0,0,0), 200); 
-
 }
 
 void drawray(SimRay r){
