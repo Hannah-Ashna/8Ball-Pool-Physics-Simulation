@@ -104,9 +104,8 @@ class Mover {
     // based on 
     // https://en.wikipedia.org/wiki/Elastic_collision
     
-     if(otherMover == this) return; // can't collide with yourself!
-     
-     
+    if(otherMover == this) return; // can't collide with yourself!
+
     PVector v1 = this.velocity;
     PVector v2 = otherMover.velocity;
     
@@ -174,6 +173,7 @@ class Mover {
   
   void noPassThrough(){
       this.velocity.y = 0;
+      this.location.y = -14;
   }  
   
   void angularVelocity(Mover otherMover){

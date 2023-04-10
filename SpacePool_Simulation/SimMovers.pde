@@ -24,7 +24,6 @@ class SimSphereMover extends SimSphere{
     // updates the physics (if you applied any forces etc)
     // this then works out the new position of the SimSphereMover
     physics.update();
-    println(physics.location);
     // sets the SimSphereMover to the physics' location
     setTransformAbs(1,0,0,0, physics.location);
     
