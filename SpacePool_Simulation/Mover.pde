@@ -176,6 +176,7 @@ class Mover {
       this.velocity.x = this.velocity.x * -1.2;
       this.velocity.y = 0;
       this.velocity.z = this.velocity.z * -1.2;
+      applyCustomFriction(frictionAmount);
   }
   
   void noPassThrough(Mover otherMover){
