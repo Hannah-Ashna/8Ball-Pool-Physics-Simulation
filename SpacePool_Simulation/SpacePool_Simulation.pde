@@ -56,10 +56,10 @@ void init() {
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   
-  RFO_L = new RadialForceObject(vec(-140, -5, 80), 10000);
-  RFO_R = new RadialForceObject(vec(140, -5,  80), 10000);
-  RFO_T = new RadialForceObject(vec(140, -5, 100), 10000);
-  RFO_B = new RadialForceObject(vec(140, -5, 100), 10000);
+  RFO_L = new RadialForceObject(vec(-140, -5, 80), 4000);
+  RFO_R = new RadialForceObject(vec(140, -5,  80), 4000);
+  RFO_T = new RadialForceObject(vec(0, -5, -220), 4000);
+  RFO_B = new RadialForceObject(vec(0, -5, 220), 4000);
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
@@ -88,17 +88,17 @@ void initUI(){
   // Setup UI
   gameUI = new SimpleUI();
   
-  gameUI.addToggleButton("Restart", 30, 30);
+  gameUI.addSimpleButton("Restart", 30, 30);
   
-  gameUI.addSimpleButton("Fan (Left)", 30, 65).setSelected(true);
-  gameUI.addSimpleButton("Fan (Right)", 100, 65).setSelected(true);
-  gameUI.addSimpleButton("Fan (Top)", 30, 95).setSelected(true);
-  gameUI.addSimpleButton("Fan (Bottom)", 100, 95).setSelected(true);
+  gameUI.addToggleButton("Fan (L)", 30, 65);
+  gameUI.addToggleButton("Fan (R)", 100, 65);
+  gameUI.addToggleButton("Fan (T)", 30, 95);
+  gameUI.addToggleButton("Fan (B)", 100, 95);
   
-  gameUI.addSlider("Fan (L)", 30, 140);
-  gameUI.addSlider("Fan (R)", 30, 170);
-  gameUI.addSlider("Fan (T)", 30, 200);
-  gameUI.addSlider("Fan (B)", 30, 230);
+  gameUI.addSlider("Fan Strength (L)", 30, 140).setSliderValue(0.4);
+  gameUI.addSlider("Fan Strength (R)", 30, 170).setSliderValue(0.4);
+  gameUI.addSlider("Fan Strength (T)", 30, 200).setSliderValue(0.4);
+  gameUI.addSlider("Fan Strength (B)", 30, 230).setSliderValue(0.4);
   gameUI.addSlider("Friction", 30, 260).setSliderValue(0.1);
   
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
@@ -145,8 +145,10 @@ void draw(){
     
     // Table Wall Collision
     wallCollisionChecks(thisBall);
-    //thisBall.physics.addForce(RFO.getForce(thisBall.physics.location));
-    //thisBall.physics.addForce(RFO2.getForce(thisBall.physics.location));
+    
+    // Fan Radial Force Checks
+    fanRadialForceChecks(thisBall);
+
   }
   
   ball.physics.update();
@@ -252,6 +254,21 @@ void wallCollisionChecks(SimSphereMover thisBall){
   }*/
 }
 
+void fanRadialForceChecks(SimSphereMover thisBall){
+  if (RFO_L.isActive){
+    thisBall.physics.addForce(RFO_L.getForce(thisBall.physics.location));
+  }
+  if (RFO_R.isActive){
+    thisBall.physics.addForce(RFO_R.getForce(thisBall.physics.location));
+  }
+  if (RFO_T.isActive){
+    thisBall.physics.addForce(RFO_T.getForce(thisBall.physics.location));
+  }
+  if (RFO_B.isActive){
+    thisBall.physics.addForce(RFO_B.getForce(thisBall.physics.location));
+  }
+}
+
 void handleUIEvent(UIEventData  uied){
   uied.print(0);
   
@@ -267,18 +284,37 @@ void handleUIEvent(UIEventData  uied){
     tableBase.physics.frictionAmount = frictionVal;
   }
   
-  // Fan Checks
+  // Fan Toggle + Slider Checks
   if(uied.eventIsFromWidget("Fan (L)") ){
     RFO_L.toggleActive();
   }
+  if(uied.eventIsFromWidget("Fan Strength (L)") ){
+    float forceVal = uied.sliderValue * 8000;
+    RFO_L.forceAmount = forceVal;
+  }
+  
   if(uied.eventIsFromWidget("Fan (R)") ){
     RFO_R.toggleActive();
   }
+  if(uied.eventIsFromWidget("Fan Strength (R)") ){
+    float forceVal = uied.sliderValue * 8000;
+    RFO_R.forceAmount = forceVal;
+  }
+  
   if(uied.eventIsFromWidget("Fan (T)") ){
     RFO_T.toggleActive();
   }
+  if(uied.eventIsFromWidget("Fan Strength (T)") ){
+    float forceVal = uied.sliderValue * 8000;
+    RFO_T.forceAmount = forceVal;
+  }
+  
   if(uied.eventIsFromWidget("Fan (B)") ){
     RFO_B.toggleActive();
+  }
+  if(uied.eventIsFromWidget("Fan Strength (B)") ){
+    float forceVal = uied.sliderValue * 8000;
+    RFO_B.forceAmount = forceVal;
   }
   
   // Check for Style Choices
