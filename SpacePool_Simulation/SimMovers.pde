@@ -71,7 +71,7 @@ class SimBoxMover extends SimBox {
 // SimModel Physics
 class SimModelMover extends SimModel {
   public Mover physics;
-  float Rx, Ry, Rz;
+  public float Rx, Ry, Rz;
   float Scale;
   
   public SimModelMover(String filename, PVector startPos, float scale, float rx, float ry, float rz, PVector translate){
@@ -90,7 +90,6 @@ class SimModelMover extends SimModel {
   
   public void drawMe(){
     physics.update();   
-    println(physics.location);
     setTransformAbs(Scale,Rx,Ry,Rz, physics.location);
     super.drawMe();
   }

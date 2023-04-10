@@ -18,6 +18,10 @@ SimBoxMover wallBottom;
 SimBoxMover tableBase;
 SimModelMover table;
 
+SimModelMover fan_L;
+SimModelMover fan_R;
+SimModelMover fan_T;
+SimModelMover fan_B;
 RadialForceObject RFO_L;
 RadialForceObject RFO_R;
 RadialForceObject RFO_T;
@@ -33,7 +37,7 @@ void setup(){
   
   // Create the SimCamera
   myCamera = new SimCamera();
-  myCamera.setPositionAndLookat(vec(-1.8566599, -300.43604, 239.17004),vec(-1.8566885, -299.6257, 238.58406)); 
+  myCamera.setPositionAndLookat(vec(-26.465195, -355.21072, 283.11923),vec(-26.465223, -354.4004, 282.53326)); 
   myCamera.isMoving = false;
   myCamera.setHUDArea(20,20,220,400);
   
@@ -48,7 +52,7 @@ void init() {
   //table.setPreferredBoundingVolume("box"); // or "box"
   //table.showBoundingVolume(false);
   
-  tableBase = new SimBoxMover(vec(-125, 0, -225), 0,0,0, vec(0, 0, 0), vec(250,-5,430), color(0,103,8));
+  tableBase = new SimBoxMover(vec(-125, 0, -205), 0,0,0, vec(0, 0, 0), vec(250,-5,420), color(0,103,8));
   tableBase.physics.frictionAmount = 0.1;
   
   wallLeft = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400), color(170,103,8));
@@ -56,10 +60,14 @@ void init() {
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   
-  RFO_L = new RadialForceObject(vec(-140, -5, 80), 4000);
-  RFO_R = new RadialForceObject(vec(140, -5,  80), 4000);
-  RFO_T = new RadialForceObject(vec(0, -5, -220), 4000);
-  RFO_B = new RadialForceObject(vec(0, -5, 220), 4000);
+  fan_L = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(-200, -25, 0));
+  fan_R = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(200, -25, 0));
+  fan_T = new SimModelMover("fan.obj", vec(0,0,0), 3, PI/2, 0, PI/2, vec(0, -25, -260));
+  fan_B = new SimModelMover("fan.obj", vec(0,0,0), 3, PI/2, 0, PI/2, vec(0, -25, 240));
+  RFO_L = new RadialForceObject(vec(-140, -5, 0), 2000);
+  RFO_R = new RadialForceObject(vec(140, -5,  0), 2000);
+  RFO_T = new RadialForceObject(vec(0, -5, -250), 2000);
+  RFO_B = new RadialForceObject(vec(0, -5, 250), 2000);
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
@@ -95,10 +103,10 @@ void initUI(){
   gameUI.addToggleButton("Fan (T)", 30, 95);
   gameUI.addToggleButton("Fan (B)", 100, 95);
   
-  gameUI.addSlider("Fan Strength (L)", 30, 140).setSliderValue(0.4);
-  gameUI.addSlider("Fan Strength (R)", 30, 170).setSliderValue(0.4);
-  gameUI.addSlider("Fan Strength (T)", 30, 200).setSliderValue(0.4);
-  gameUI.addSlider("Fan Strength (B)", 30, 230).setSliderValue(0.4);
+  gameUI.addSlider("Fan Strength (L)", 30, 140).setSliderValue(1);
+  gameUI.addSlider("Fan Strength (R)", 30, 170).setSliderValue(1);
+  gameUI.addSlider("Fan Strength (T)", 30, 200).setSliderValue(1);
+  gameUI.addSlider("Fan Strength (B)", 30, 230).setSliderValue(1);
   gameUI.addSlider("Friction", 30, 260).setSliderValue(0.1);
   
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
@@ -112,7 +120,6 @@ void draw(){
   lights();
   
   noStroke();
-  
   
   tableBase.drawMe();
   wallLeft.drawMe();
@@ -150,6 +157,11 @@ void draw(){
     fanRadialForceChecks(thisBall);
 
   }
+  
+  if (RFO_L.isActive){ fan_L.Rx += 0.1; fan_L.drawMe(); }
+  if (RFO_R.isActive){ fan_R.Rx += 0.1; fan_R.drawMe(); }
+  if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
+  if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
   ball.physics.update();
   
@@ -289,7 +301,7 @@ void handleUIEvent(UIEventData  uied){
     RFO_L.toggleActive();
   }
   if(uied.eventIsFromWidget("Fan Strength (L)") ){
-    float forceVal = uied.sliderValue * 8000;
+    float forceVal = uied.sliderValue * 2000;
     RFO_L.forceAmount = forceVal;
   }
   
@@ -297,7 +309,7 @@ void handleUIEvent(UIEventData  uied){
     RFO_R.toggleActive();
   }
   if(uied.eventIsFromWidget("Fan Strength (R)") ){
-    float forceVal = uied.sliderValue * 8000;
+    float forceVal = uied.sliderValue * 2000;
     RFO_R.forceAmount = forceVal;
   }
   
@@ -305,7 +317,7 @@ void handleUIEvent(UIEventData  uied){
     RFO_T.toggleActive();
   }
   if(uied.eventIsFromWidget("Fan Strength (T)") ){
-    float forceVal = uied.sliderValue * 8000;
+    float forceVal = uied.sliderValue * 2000;
     RFO_T.forceAmount = forceVal;
   }
   
@@ -313,7 +325,7 @@ void handleUIEvent(UIEventData  uied){
     RFO_B.toggleActive();
   }
   if(uied.eventIsFromWidget("Fan Strength (B)") ){
-    float forceVal = uied.sliderValue * 8000;
+    float forceVal = uied.sliderValue * 2000;
     RFO_B.forceAmount = forceVal;
   }
   

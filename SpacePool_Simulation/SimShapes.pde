@@ -992,7 +992,7 @@ class SimModel extends SimTransform{
     PVector centrePoint = extents[2];
     PVector furthestVerticesFromCentre = extents[3];
     float radius = furthestVerticesFromCentre.dist(centrePoint);
-    boundingBox = new SimBox(extents[0], extents[1], null, color(170,103,8));
+    boundingBox = new SimBox(extents[0], extents[1], null, color(255,255,255,0));
     
     
     boundingSphere = new SimSphere(centrePoint, radius);
@@ -1081,7 +1081,7 @@ class SimModel extends SimTransform{
     PVector[] transformedVertices = getTransformedVertices();
     PVector[] extents = getExents_DoNotApplyTransform(transformedVertices);
     //println("AABB extents are ", extents[0],extents[1]);
-    return new SimBox(extents[0], extents[1], null, color(170,103,8));
+    return new SimBox(extents[0], extents[1], null, color(0,0,0,0));
 
   }
   
