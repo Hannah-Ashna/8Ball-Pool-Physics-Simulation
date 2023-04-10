@@ -22,8 +22,11 @@ SimCamera myCamera;
 
 void setup(){
   size(900, 700, P3D);
-  frameRate(60);
-  
+  frameRate(120);
+  init(); //<>//
+}
+
+void init() {
   // Setup Table
   //table = new SimModelMover("table.obj", vec(0, 0, 0),5, 0, 0,PI, vec(0, 0, 0));
   // transforms the rocket so it is the right way up etc.
@@ -36,7 +39,7 @@ void setup(){
   wallRight = new SimBoxMover(vec(110, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400));
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
-   //<>//
+  
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
   otherBalls.add(ball);
@@ -49,6 +52,7 @@ void setup(){
     
     SimSphereMover newBall = new SimSphereMover(vec(XLoc, YLoc, ZLoc), 10.0f);
     
+    newBall.physics.radius = 10.0f;
     newBall.physics.velocity =  new PVector(0,0,0);
     newBall.physics.setMass(0.5);
     newBall.physics.frictionAmount = 0.3;
@@ -104,10 +108,6 @@ void draw(){
     
     thisBall.physics.update();
     thisBall.drawMe();
-    
-    if(n == 0){
-      println(thisBall.physics.location);
-    }
     
     // Table Wall Collision
     wallCollisionChecks(thisBall);
@@ -190,7 +190,6 @@ void moveObject(float x, float y, float z){
 void wallCollisionChecks(SimSphereMover thisBall){
   if(thisBall.collidesWith(wallLeft) ){
     thisBall.physics.reverseVelocity(wallLeft.physics);
-    //thisBall.physics.applyCustomFriction(500);
   }
   if(thisBall.collidesWith(wallRight) ){
     thisBall.physics.reverseVelocity(wallRight.physics);
@@ -204,20 +203,6 @@ void wallCollisionChecks(SimSphereMover thisBall){
   if(thisBall.collidesWith(tableBase) ){
     thisBall.physics.noPassThrough();
   }
-  /*if(thisBall.physics.location.x <= -120 || thisBall.physics.location.x >= 110){
-    if (thisBall.physics.location.x > 0) {
-      thisBall.physics.location.x = 90;
-    } else {
-      thisBall.physics.location.x = -100;
-    }
-  }
-  if(thisBall.physics.location.z <= -180 || thisBall.physics.location.z >= 180){
-    if (thisBall.physics.location.z > 0) {
-      thisBall.physics.location.z = 190;
-    } else {
-      thisBall.physics.location.z = -170;
-    }
-  }*/
   /*if(ball.collidesWith(table) ){
     println("Colliding");
     //ball.physics.noPassThrough();

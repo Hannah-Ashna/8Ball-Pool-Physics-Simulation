@@ -2,13 +2,16 @@
 class SimSphereMover extends SimSphere{
   
  public Mover physics;
+ float r;
    
  public SimSphereMover(PVector startPos, float rad) {
     // this calls the base-class SimSphere constructor setting the radius
     super(rad);
+    r = rad;
     
     // instantiate out Mover class variable, called "physics"
     physics = new Mover();
+    physics.radius = r;
     
     // move the SimSphereMover to its start position
     setTransformAbs(1,0,0,0, startPos);
@@ -23,6 +26,7 @@ class SimSphereMover extends SimSphere{
   public void drawMe(){
     // updates the physics (if you applied any forces etc)
     // this then works out the new position of the SimSphereMover
+    physics.radius = r;
     physics.update();
     // sets the SimSphereMover to the physics' location
     setTransformAbs(1,0,0,0, physics.location);

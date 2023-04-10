@@ -146,6 +146,7 @@ class Mover {
     
     this.velocity = v1New;
     otherMover.velocity = v2New;
+    
     ensureNoOverlap(otherMover);
   }
   
@@ -154,17 +155,15 @@ class Mover {
     // the purpose of this method is to avoid Movers sticking together:
     // if they are overlapping it moves this Mover directly away from the other Mover to ensure
     // they are not still overlapping come the next collision check 
-    
-    
+       
     PVector cen1 = this.location;
     PVector cen2 = otherMover.location;
     
-    float cumulativeRadii = (this.radius + otherMover.radius)+2; // extra fudge factor
+    float cumulativeRadii = (this.radius + otherMover.radius); // extra fudge factor
     float distanceBetween = cen1.dist(cen2);
     
     float overlap = cumulativeRadii - distanceBetween;
     if(overlap > 0){
-      // move this away from other
       PVector vectorAwayFromOtherNormalized = PVector.sub(cen1, cen2).normalize();
       PVector amountToMove = PVector.mult(vectorAwayFromOtherNormalized, overlap);
       this.location.add(amountToMove);
@@ -174,9 +173,9 @@ class Mover {
   void reverseVelocity(Mover otherMover) {
       if(otherMover == this) return; // can't collide with yourself!
        
-      this.velocity.x = this.velocity.x * -0.8;
+      this.velocity.x = this.velocity.x * -1.2;
       this.velocity.y = 0;
-      this.velocity.z = this.velocity.z * -0.8;
+      this.velocity.z = this.velocity.z * -1.2;
   }
   
   void noPassThrough(){
