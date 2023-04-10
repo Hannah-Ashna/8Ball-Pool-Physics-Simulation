@@ -8,6 +8,7 @@
 // The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
 
 ArrayList<SimSphereMover> otherBalls;
+SimObjectManager simObjectManager = new SimObjectManager();
 
 SimSphereMover ball;
 
@@ -16,7 +17,6 @@ SimBoxMover wallRight;
 SimBoxMover wallTop;
 SimBoxMover wallBottom;
 SimBoxMover tableBase;
-SimModelMover table;
 
 SimModelMover fan_L;
 SimModelMover fan_R;
@@ -45,13 +45,6 @@ void setup(){
 }
 
 void init() {
-  // Setup Table
-  //table = new SimModelMover("table.obj", vec(0, 0, 0),5, 0, 0,PI, vec(0, 0, 0));
-  // transforms the rocket so it is the right way up etc.
-  //table.setTransformAbs();
-  //table.setPreferredBoundingVolume("box"); // or "box"
-  //table.showBoundingVolume(false);
-  
   tableBase = new SimBoxMover(vec(-125, 0, -205), 0,0,0, vec(0, 0, 0), vec(250,-5,420), color(0,103,8));
   tableBase.physics.frictionAmount = 0.1;
   
@@ -73,9 +66,10 @@ void init() {
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
   otherBalls = new ArrayList<SimSphereMover>();
   otherBalls.add(ball);
+  simObjectManager.addSimObject(ball, "ball");
   
   // Setup Other Balls
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 15; i++) {
     float XLoc = random(-80, 80);
     float YLoc = -14;
     float ZLoc = random(-160, 160);
@@ -143,8 +137,14 @@ void draw(){
     
     if(n == 0){
       fill(255,255,255);
+    } else if (n > 8){
+      fill(26,70,156);
     } else {
-      fill(255,0,0);
+      fill(192,15,15);
+    } 
+    
+    if(n == 14){
+      fill(0,0,0);
     }
     
     thisBall.physics.update();
@@ -194,6 +194,45 @@ SimSphereMover findCollisionWithOtherBalls(SimSphereMover thisBall, int thisBall
   return null;
 }
 
+void mousePressed(){
+  updateMouseTracker();
+}
+
+void mouseDragged(){
+  updateMouseTracker();
+}
+
+void updateMouseTracker(){
+  if(mouseButton == RIGHT) return;
+  boolean pickedCueBall = false;
+  
+  int totalObjs = simObjectManager.getNumSimObjects();
+  
+  for (int n = 0; n < totalObjs; n++){
+    SimTransform obj = simObjectManager.getSimObject(n);
+    SimRay mouseRay = myCamera.getMouseRay();
+    mouseRay.setID("Mouse Ray");
+    
+    if(mouseRay.calcIntersection(obj)){
+      PVector intersectionPoint = mouseRay.getIntersectionPoint();
+      PVector ballPos = ball.physics.location;
+      float dist = intersectionPoint.dist(ballPos);
+      
+      if (dist < ball.physics.radius+1){
+        PVector directionVec = PVector.sub(ballPos, intersectionPoint);
+        directionVec.mult(1500);
+        ball.physics.addForce(directionVec);
+      }
+      
+      println(dist);
+      
+      pickedCueBall = true;
+      break;
+    }
+  }
+  
+  //if (pickedCueBall) { return; }
+}
 
 
 void keyPressed(){
@@ -212,7 +251,7 @@ void keyPressed(){
     return;
   }
   
-  if(key == 'w'){
+  /*if(key == 'w'){
     // UP
     moveObject(0,-force, 0);
     }
@@ -235,7 +274,7 @@ void keyPressed(){
      if(keyCode == RIGHT){
        moveObject(force,0,0);   
        }  
-    }
+    }*/
 }
 
 void moveObject(float x, float y, float z){
@@ -260,10 +299,6 @@ void wallCollisionChecks(SimSphereMover thisBall){
   if(thisBall.collidesWith(tableBase) ){
     thisBall.physics.noPassThrough(tableBase.physics);
   }
-  /*if(ball.collidesWith(table) ){
-    println("Colliding");
-    //ball.physics.noPassThrough();
-  }*/
 }
 
 void fanRadialForceChecks(SimSphereMover thisBall){
