@@ -314,12 +314,13 @@ public class SimpleUI {
 
   public String getText(String uilabel) {
     Widget w = getWidget(uilabel);
-
+    println(w.UIComponentType);
+    
     if (w.UIComponentType.equals("TextInputBox")) {
       return ((TextInputBox)w).getText();
     }
 
-    if (w.UIComponentType.equals("SimpleLabel")) {
+    if (w.UIComponentType.equals("SimpleLabel") || w.UIComponentType.equals("TextDisplayBox")) {
       return ((TextDisplayBox)w).getText();
     }
     return "";
@@ -330,7 +331,7 @@ public class SimpleUI {
     if (w.UIComponentType.equals("TextInputBox")) {
       ((TextInputBox)w).setText(content);
     }
-    if (w.UIComponentType.equals("SimpleLabel")) {
+    if (w.UIComponentType.equals("SimpleLabel") || w.UIComponentType.equals("TextDisplayBox")) {
       ((TextDisplayBox)w).setText(content);
     }
   }

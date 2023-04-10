@@ -95,8 +95,9 @@ void initUI(){
   // Setup UI
   gameUI = new SimpleUI();
   
-  gameUI.addSimpleButton("Restart", 30, 30);
-  gameUI.addToggleButton("PvC", 100, 30);
+  
+  gameUI.addToggleButton("PvC", 30, 30);
+  gameUI.addTextDisplayBox("Turn", 100, 30, " Solo");
   
   gameUI.addToggleButton("Fan (L)", 30, 65);
   gameUI.addToggleButton("Fan (R)", 100, 65);
@@ -104,13 +105,15 @@ void initUI(){
   gameUI.addToggleButton("Fan (B)", 100, 95);
   
   gameUI.addSlider("Fan Strength (L)", 30, 140).setSliderValue(1);
-  gameUI.addSlider("Fan Strength (R)", 30, 170).setSliderValue(1);
-  gameUI.addSlider("Fan Strength (T)", 30, 200).setSliderValue(1);
-  gameUI.addSlider("Fan Strength (B)", 30, 230).setSliderValue(1);
-  gameUI.addSlider("Friction", 30, 260).setSliderValue(0.1);
+  gameUI.addSlider("Fan Strength (R)", 30, 175).setSliderValue(1);
+  gameUI.addSlider("Fan Strength (T)", 30, 210).setSliderValue(1);
+  gameUI.addSlider("Fan Strength (B)", 30, 245).setSliderValue(1);
+  gameUI.addSlider("Friction", 30, 280).setSliderValue(0.1);
   
+  gameUI.addSimpleButton("Restart", 30, 320);
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
-  gameUI.addMenu("Table Styles", 30, 300, styleMenuItems);
+  gameUI.addMenu("Table Styles", 100, 320, styleMenuItems);
+  
   
   
 }
@@ -169,12 +172,16 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
+  //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag() <= 2));
+  
   // Check if Computer is allowed to and capable of making the next move
   if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
     PVector computerHit = new PVector(random(-80, 80), 0, random(-160, 160));
-    computerHit.mult(1500);
+    computerHit.mult(2000);
     ball.physics.addForce(computerHit);
-    
+    ball.physics.update();
+  
+    gameUI.setText("Turn", " Player");
     pickedCueBall = false;
   }
   
@@ -238,6 +245,7 @@ void updateMouseTracker(){
       }
        
       pickedCueBall = true;
+      gameUI.setText("Turn", "Computer");
       break;
     } 
   }
@@ -307,6 +315,13 @@ void handleUIEvent(UIEventData  uied){
   // Toggle PvC
   if(uied.eventIsFromWidget("PvC") ){   
     enabledPvC = !enabledPvC;
+    
+    if (!enabledPvC) {
+      gameUI.setText("Turn", "Solo");
+    } 
+    else { 
+      gameUI.setText("Turn", " "); 
+    }
   }
   
   // Set Table Friction Value
