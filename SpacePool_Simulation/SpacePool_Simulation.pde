@@ -95,20 +95,45 @@ void initUI(){
   // Setup UI
   gameUI = new SimpleUI();
   
+  Widget w;
   
   gameUI.addToggleButton("PvC", 30, 30);
   gameUI.addTextDisplayBox("Turn", 100, 30, " Solo");
+  w = gameUI.getWidget("Turn");
+  w.setBounds(100, 30, 100, 20);
   
   gameUI.addToggleButton("Fan (L)", 30, 65);
-  gameUI.addToggleButton("Fan (R)", 100, 65);
-  gameUI.addToggleButton("Fan (T)", 30, 95);
-  gameUI.addToggleButton("Fan (B)", 100, 95);
+  w = gameUI.getWidget("Fan (L)");
+  w.setBounds(30, 65, 50, 30);
+  gameUI.addSlider("Fan Strength (L)", 90, 65).setSliderValue(1);
+  w = gameUI.getWidget("Fan Strength (L)");
+  w.setBounds(90, 65, 120, 30);
   
-  gameUI.addSlider("Fan Strength (L)", 30, 140).setSliderValue(1);
+  gameUI.addToggleButton("Fan (R)", 30, 100);
+  w = gameUI.getWidget("Fan (R)");
+  w.setBounds(30, 100, 60, 30);
+  
+  gameUI.addToggleButton("Fan (T)", 30, 130);
+  w = gameUI.getWidget("Fan (T)");
+  w.setBounds(30, 130, 60, 30);
+  
+  gameUI.addToggleButton("Fan (B)", 100, 160);
+  w = gameUI.getWidget("Fan (B)");
+  w.setBounds(30, 160, 60, 30);
+  
+  
   gameUI.addSlider("Fan Strength (R)", 30, 175).setSliderValue(1);
+  w = gameUI.getWidget("Fan Strength (R)");
+  w.setBounds(30, 175, 180, 30);
   gameUI.addSlider("Fan Strength (T)", 30, 210).setSliderValue(1);
+  w = gameUI.getWidget("Fan Strength (T)");
+  w.setBounds(30, 210, 180, 30);
   gameUI.addSlider("Fan Strength (B)", 30, 245).setSliderValue(1);
+  w = gameUI.getWidget("Fan Strength (B)");
+  w.setBounds(30, 245, 180, 30);
   gameUI.addSlider("Friction", 30, 280).setSliderValue(0.1);
+  w = gameUI.getWidget("Friction");
+  w.setBounds(30, 280, 180, 30);
   
   gameUI.addSimpleButton("Restart", 30, 320);
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
