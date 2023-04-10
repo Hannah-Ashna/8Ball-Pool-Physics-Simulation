@@ -19,6 +19,7 @@ SimBoxMover tableBase;
 SimModelMover table;
 
 SimCamera myCamera;
+SimpleUI gameUI;
 
 void setup(){
   size(900, 700, P3D);
@@ -34,11 +35,13 @@ void init() {
   //table.setPreferredBoundingVolume("box"); // or "box"
   //table.showBoundingVolume(false);
   
-  tableBase = new SimBoxMover(vec(-125, 0, -225), 0,0,0, vec(0, 0, 0), vec(250,-5,430));
-  wallLeft = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400));
-  wallRight = new SimBoxMover(vec(110, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400));
-  wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
-  wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
+  tableBase = new SimBoxMover(vec(-125, 0, -225), 0,0,0, vec(0, 0, 0), vec(250,-5,430), color(0,103,8));
+  tableBase.physics.frictionAmount = 0.1;
+  
+  wallLeft = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400), color(170,103,8));
+  wallRight = new SimBoxMover(vec(110, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400), color(170,103,8));
+  wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
+  wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
@@ -64,6 +67,16 @@ void init() {
   myCamera = new SimCamera();
   myCamera.setPositionAndLookat(vec(-1.8566599, -301.43604, 239.17004),vec(-1.8566885, -300.6257, 238.58406)); 
   myCamera.isMoving = false;
+  myCamera.setHUDArea(20,20,200,200);
+  
+  // Setup UI
+  gameUI = new SimpleUI();
+  
+  String[] styleMenuItems = {"Standard","Dracula","Icy"};
+  gameUI.addMenu("Table Styles", 20, 20, styleMenuItems);
+  gameUI.addToggleButton("Restart", 20,130);
+  gameUI.addSlider("Friction", 20,170).setSliderValue(0.1);
+  
 }
 
 void draw(){
@@ -71,13 +84,9 @@ void draw(){
   lights();
   
   noStroke();
-  //fill(255,0,0);
-  //ball.drawMe();
   
-  fill(0,103,8);
+  
   tableBase.drawMe();
-  
-  fill(170,103,8);
   wallLeft.drawMe();
   wallRight.drawMe();
   wallTop.drawMe();
@@ -86,9 +95,6 @@ void draw(){
   // Apply Gravitational Pull
   PVector force = new PVector(0, 100, 0);
   ball.physics.addForce(force);
-  
-  myCamera.update();
-  //drawMajorAxis(new PVector(0,0,0), 200); 
   
   // Check for collisions with other balls
   for(int n = 0; n < otherBalls.size(); n++){
@@ -114,6 +120,12 @@ void draw(){
   }
   
   ball.physics.update();
+  
+  myCamera.update();
+  myCamera.startDrawHUD();
+  gameUI.update();
+  myCamera.endDrawHUD();
+  //drawMajorAxis(new PVector(0,0,0), 200); 
 }
 
 void drawray(SimRay r){
@@ -201,7 +213,7 @@ void wallCollisionChecks(SimSphereMover thisBall){
     thisBall.physics.reverseVelocity(wallBottom.physics);
   }
   if(thisBall.collidesWith(tableBase) ){
-    thisBall.physics.noPassThrough();
+    thisBall.physics.noPassThrough(tableBase.physics);
   }
   /*if(ball.collidesWith(table) ){
     println("Colliding");
@@ -209,4 +221,46 @@ void wallCollisionChecks(SimSphereMover thisBall){
   }*/
 }
 
-void handleUIEvent(UIEventData  uied){}
+void handleUIEvent(UIEventData  uied){
+  uied.print(0);
+  
+  // Reset Game
+  if(uied.eventIsFromWidget("Reset") ){   
+    // Not working yet???
+    init();
+  }
+  
+  // Set Table Friction Value
+  if(uied.eventIsFromWidget("Friction") ){
+    float frictionVal = uied.sliderValue * 5;
+    tableBase.physics.frictionAmount = frictionVal;
+  }
+  
+  // Check for Style Choices
+  if(uied.menuItem.equals("Standard") ){
+    tableBase.updateColour(color(0,103,8));
+    
+    wallLeft.updateColour(color(170,103,8));
+    wallRight.updateColour(color(170,103,8));
+    wallTop.updateColour(color(170,103,8));
+    wallBottom.updateColour(color(170,103,8));
+  }   
+  
+  if(uied.menuItem.equals("Dracula") ){
+    tableBase.updateColour(color(110,18,18));
+    
+    wallLeft.updateColour(color(98,74,74));
+    wallRight.updateColour(color(98,74,74));
+    wallTop.updateColour(color(98,74,74));
+    wallBottom.updateColour(color(98,74,74));
+  }
+  
+  if(uied.menuItem.equals("Icy") ){
+    tableBase.updateColour(color(149,249,246));
+    
+    wallLeft.updateColour(color(28,162,158));
+    wallRight.updateColour(color(28,162,158));
+    wallTop.updateColour(color(28,162,158));
+    wallBottom.updateColour(color(28,162,158));
+  }
+}

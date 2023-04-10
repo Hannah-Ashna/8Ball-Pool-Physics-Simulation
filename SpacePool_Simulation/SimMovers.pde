@@ -43,12 +43,14 @@ class SimBoxMover extends SimBox {
   float Rx;
   float Ry;
   float Rz;
+  color c;
   
-  public SimBoxMover(PVector startPos, float RX, float RY, float RZ, PVector c1, PVector c2){
-    super(c1, c2, startPos);
+  public SimBoxMover(PVector startPos, float RX, float RY, float RZ, PVector c1, PVector c2, color boxColor){
+    super(c1, c2, startPos, boxColor);
     this.Rx = RX;
     this.Ry = RY;
     this.Rz = RZ;
+    this.c = boxColor;
     
     physics = new Mover();
     setTransformAbs(1,Rx,Ry,Rz, startPos);

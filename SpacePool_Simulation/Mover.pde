@@ -178,9 +178,10 @@ class Mover {
       this.velocity.z = this.velocity.z * -1.2;
   }
   
-  void noPassThrough(){
+  void noPassThrough(Mover otherMover){
       this.velocity.y = 0;
       this.location.y = -14;
+      applyCustomFriction(otherMover.frictionAmount);
   }  
   
   void angularVelocity(Mover otherMover){

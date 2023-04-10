@@ -291,7 +291,7 @@ abstract class SimTransform{
 class SimSphere extends SimTransform{
 
 
-
+  
   private float radius = 1;
 
   public int levelOfDetail = 10;
@@ -472,6 +472,7 @@ class SimBox extends SimTransform{
   PVector c1Val;
   PVector c2Val;
   PVector startPos;
+  color boxColor;
 
   // index of top, and bottom vertices
   int
@@ -494,11 +495,12 @@ class SimBox extends SimTransform{
     setExtents(c1, c2);
   }
 
-  public SimBox(PVector c1, PVector c2, PVector startPos) {
+  public SimBox(PVector c1, PVector c2, PVector startPos, color boxColor) {
     setExtents(c1, c2);
     this.c1Val = c1;
     this.c2Val = c2;
     this.startPos = startPos;
+    this.boxColor = boxColor;
   }
 
 
@@ -873,8 +875,15 @@ class SimBox extends SimTransform{
     return false;
   }
 
+
+  public void updateColour(color c){
+    this.boxColor = c;
+  }
+
   // draws the transformed shape
   public void drawMe() {
+    fill(boxColor);
+    
     //topface
     beginShape();
     drawTransformedVertex(vertices[T1]);
@@ -983,7 +992,7 @@ class SimModel extends SimTransform{
     PVector centrePoint = extents[2];
     PVector furthestVerticesFromCentre = extents[3];
     float radius = furthestVerticesFromCentre.dist(centrePoint);
-    boundingBox = new SimBox(extents[0], extents[1], null);
+    boundingBox = new SimBox(extents[0], extents[1], null, color(170,103,8));
     
     
     boundingSphere = new SimSphere(centrePoint, radius);
@@ -1072,7 +1081,7 @@ class SimModel extends SimTransform{
     PVector[] transformedVertices = getTransformedVertices();
     PVector[] extents = getExents_DoNotApplyTransform(transformedVertices);
     //println("AABB extents are ", extents[0],extents[1]);
-    return new SimBox(extents[0], extents[1], null);
+    return new SimBox(extents[0], extents[1], null, color(170,103,8));
 
   }
   
