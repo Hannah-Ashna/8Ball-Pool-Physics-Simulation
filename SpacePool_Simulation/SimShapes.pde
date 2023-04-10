@@ -376,17 +376,26 @@ class SimSphere extends SimTransform{
     
     String otherClass = getClassName(other);
     //println("collidesWith between this ", getClassName(this), " and " , otherClass);
+    SimTransform boundingGeom;
+    
     switch(otherClass) {
       case "SimSphere": 
           return intersectsSphere((SimSphere) other);
+      case "SimSphereMover": 
+          return intersectsSphere((SimSphere) other);
       case "SimBox": 
+          println("SimBox - Collision");
           return ((SimBox)other).intersectsSphere(this);
       case "SimBoxMover": 
           return ((SimBoxMover)other).intersectsSphere(this);
       case "SimSurfaceMesh": 
           return ((SimSurfaceMesh)other).intersectsSphere(this);
       case "SimModel": 
-          SimTransform boundingGeom  = ((SimModel)other).getPreferredBoundingVolume();
+          println("SimModel - Collision");
+          boundingGeom  = ((SimModel)other).getPreferredBoundingVolume();
+          return boundingGeom.collidesWith(this);
+      case "SimModelMover": 
+          boundingGeom  = ((SimModel)other).getPreferredBoundingVolume();
           return boundingGeom.collidesWith(this);
     }
     

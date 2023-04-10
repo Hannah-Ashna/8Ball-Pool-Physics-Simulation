@@ -7,62 +7,48 @@
 
 // The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
 
-SimSurfaceMesh terrain; 
 SimSphereMover ball;
+SimSphereMover ball2;
+SimSphereMover ball3;
 
 ArrayList<SimBoxMover> walls = new ArrayList<SimBoxMover>();
 SimBoxMover wallLeft;
 SimBoxMover wallRight;
 SimBoxMover wallTop;
 SimBoxMover wallBottom;
-SimBoxMover wallDivider;
-SimBoxMover floorBase;
-SimBoxMover angledBox;
-
-SimSphere point;
-SimSphere point2;
-SimSphere point3;
-SimSphere point4;
-
-RadialForceObject RFO;
-RadialForceObject RFO2;
-RadialForceObject RFO3;
-RadialForceObject RFO4;
+SimBoxMover tableBase;
+SimModelMover table;
 
 SimCamera myCamera;
 
 void setup(){
   size(900, 700, P3D);
   
-  // Setup Pinball Machine Walls
-  wallLeft = new SimBoxMover(vec(0, -20, 0), 0,0,0, vec(0, 0, 0), vec(900,20,20));
-  wallRight = new SimBoxMover(vec(0,-20, 700), 0,0,0, vec(0, 0, 0), vec(900,20,20));
-  wallTop = new SimBoxMover(vec(875,-20,0), 0,0,0, vec(0, 0, 0), vec(28,20,700));
-  wallBottom = new SimBoxMover(vec(0,-20,0), 0,0,0, vec(0, 0, 0), vec(20,20,700));
-  wallDivider = new SimBoxMover(vec(0,-20,600), 0,0,0, vec(0, 0, 0), vec(600,20,20));
-  floorBase = new SimBoxMover(vec(0,0,0), 0,0,0, vec(0, 0, 0), vec(900,10,700));
+  // Setup Table
+  //table = new SimModelMover("table.obj", vec(0, 0, 0),5, 0, 0,PI, vec(0, 0, 0));
+  // transforms the rocket so it is the right way up etc.
+  //table.setTransformAbs();
+  //table.setPreferredBoundingVolume("box"); // or "box"
+  //table.showBoundingVolume(false);
+  
+  tableBase = new SimBoxMover(vec(-125, 0, -225), 0,0,0, vec(0, 0, 0), vec(250,-25,430));
+  wallLeft = new SimBoxMover(vec(-125, -25, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400));
+  wallRight = new SimBoxMover(vec(110, -25, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400));
+  wallTop = new SimBoxMover(vec(-125, -25, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
+  wallBottom = new SimBoxMover(vec(-125, -25, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
   walls.add(wallLeft);
   walls.add(wallRight);
   walls.add(wallTop);
   walls.add(wallBottom);
-  walls.add(wallDivider);
-  walls.add(floorBase);
-  
-  // Setup other Items
-  angledBox = new SimBoxMover(vec(900, -20, 580), 0, 1.3*PI ,0, vec(0, 0, 0), vec(160,20,20));
-  RFO = new RadialForceObject(new PVector(700, -20, 700), 10000);
- //<>//
-  point = new SimSphere(vec(800.0, -20.0, 705.0 ), 10.0f);
-  point2 = new SimSphere(vec(790, -20, 695), 10.0f);
-  point3 = new SimSphere(vec(880, -20, 560), 10.0f);
-  point4 = new SimSphere(vec(900.0, 0.0, 580.0 ), 10.0f);
-
+   //<>//
   // Setup Ball
-  ball = new SimSphereMover(vec(100,-15,650), 15.0f);
+  ball = new SimSphereMover(vec(0,-80,0), 10.0f);
+  ball2 = new SimSphereMover(vec(30,-40,0), 10.0f);
+  ball3 = new SimSphereMover(vec(0,-40,20), 10.0f);
   
   // Create the SimCamera
   myCamera = new SimCamera();
-  myCamera.setPositionAndLookat(vec(-43.29971, -629.30286, 342.63553),vec(-42.752766, -628.46576, 342.63547)); 
+  myCamera.setPositionAndLookat(vec(-1.8566599, -301.43604, 239.17004),vec(-1.8566885, -300.6257, 238.58406)); 
   myCamera.isMoving = false;
 }
 
@@ -70,38 +56,31 @@ void draw(){
   background(0);
   lights();
 
+  //table.drawMe();
+
   noStroke();
   fill(255,0,0);
   ball.drawMe();
   
-  fill(100,0,255);
+  fill(0,103,8);
+  tableBase.drawMe();
+  //ball2.drawMe();
+  //ball3.drawMe();
+  
+  fill(170,103,8);
   wallLeft.drawMe();
   wallRight.drawMe();
   wallTop.drawMe();
   wallBottom.drawMe();
-  wallDivider.drawMe();
-  angledBox.drawMe();
-   
-  fill(100,0,100);
-  floorBase.drawMe();
-  
-  fill(0,255,0);
-  point.drawMe();
-  point2.drawMe();
-  point3.drawMe();
-  point4.drawMe();
   
   // Apply Gravitational Pull
-  PVector force = new PVector(-100, 20, 0);
+  PVector force = new PVector(0, 100, 0);
   ball.physics.addForce(force);
   
   wallCollisionChecks();
 
   myCamera.update();
-  drawMajorAxis(new PVector(0,0,0), 200); 
-  
-  //RFO.display();
-  //ball.physics.addForce(RFO.getForce(ball.physics.location));
+  //drawMajorAxis(new PVector(0,0,0), 200); 
   
   ball.physics.update();
 }
@@ -142,9 +121,7 @@ void keyPressed(){
   
   if(key == CODED){
     if(keyCode == UP){
-      //moveObject(-force,0,0);
-      PVector launchForce = new PVector(25000, 0, 0);
-      ball.physics.addForce(launchForce);
+      moveObject(-force,0,0);
       }
     if(keyCode == DOWN){ 
      moveObject(force,0,0);
@@ -165,6 +142,12 @@ void moveObject(float x, float y, float z){
 }
 
 void wallCollisionChecks(){
+  if(ball.collidesWith(ball2) ){
+    ball.physics.collisionResponse(ball2.physics);
+  }
+  if(ball.collidesWith(ball3) ){
+    ball.physics.collisionResponse(ball3.physics);
+  }
   if(ball.collidesWith(wallLeft) ){
     ball.physics.reverseVelocity(wallLeft.physics);
   }
@@ -177,15 +160,14 @@ void wallCollisionChecks(){
   if(ball.collidesWith(wallBottom) ){
     ball.physics.reverseVelocity(wallBottom.physics);
   }
-  if(ball.collidesWith(wallDivider) ){
-    ball.physics.reverseVelocity(wallDivider.physics);
-  }
-  if(ball.collidesWith(angledBox) ){
-    ball.physics.angularVelocity(angledBox.physics);
-  }
-  if(ball.collidesWith(floorBase) ){
+  if(ball.collidesWith(tableBase) ){
+    println("Colliding:");
     ball.physics.noPassThrough();
   }
+  /*if(ball.collidesWith(table) ){
+    println("Colliding");
+    //ball.physics.noPassThrough();
+  }*/
 }
 
 void handleUIEvent(UIEventData  uied){}
