@@ -111,26 +111,25 @@ void initUI(){
   
   gameUI.addToggleButton("Fan (R)", 30, 100);
   w = gameUI.getWidget("Fan (R)");
-  w.setBounds(30, 100, 60, 30);
-  
-  gameUI.addToggleButton("Fan (T)", 30, 130);
-  w = gameUI.getWidget("Fan (T)");
-  w.setBounds(30, 130, 60, 30);
-  
-  gameUI.addToggleButton("Fan (B)", 100, 160);
-  w = gameUI.getWidget("Fan (B)");
-  w.setBounds(30, 160, 60, 30);
-  
-  
-  gameUI.addSlider("Fan Strength (R)", 30, 175).setSliderValue(1);
+  w.setBounds(30, 100, 50, 30);
+  gameUI.addSlider("Fan Strength (R)", 90, 100).setSliderValue(1);
   w = gameUI.getWidget("Fan Strength (R)");
-  w.setBounds(30, 175, 180, 30);
-  gameUI.addSlider("Fan Strength (T)", 30, 210).setSliderValue(1);
+  w.setBounds(90, 100, 120, 30);
+  
+  gameUI.addToggleButton("Fan (T)", 30, 135);
+  w = gameUI.getWidget("Fan (T)");
+  w.setBounds(30, 135, 50, 30);
+  gameUI.addSlider("Fan Strength (T)", 90, 135).setSliderValue(1);
   w = gameUI.getWidget("Fan Strength (T)");
-  w.setBounds(30, 210, 180, 30);
-  gameUI.addSlider("Fan Strength (B)", 30, 245).setSliderValue(1);
+  w.setBounds(90, 135, 120, 30);
+  
+  gameUI.addToggleButton("Fan (B)", 100, 170);
+  w = gameUI.getWidget("Fan (B)");
+  w.setBounds(30, 170, 50, 30);
+  gameUI.addSlider("Fan Strength (B)", 90, 170).setSliderValue(1);
   w = gameUI.getWidget("Fan Strength (B)");
-  w.setBounds(30, 245, 180, 30);
+  w.setBounds(90, 170, 120, 30);
+  
   gameUI.addSlider("Friction", 30, 280).setSliderValue(0.1);
   w = gameUI.getWidget("Friction");
   w.setBounds(30, 280, 180, 30);
@@ -197,17 +196,22 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
-  //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag() <= 2));
+  println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
   
   // Check if Computer is allowed to and capable of making the next move
   if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
-    PVector computerHit = new PVector(random(-80, 80), 0, random(-160, 160));
-    computerHit.mult(2000);
-    ball.physics.addForce(computerHit);
-    ball.physics.update();
+    float XForce = 3000;
+    float ZForce = 3000;
+    
+    if (random(0, 1) == 1) { XForce = XForce * -1; } 
+    if (random(0, 1) == 1) { ZForce = ZForce * -1; } 
+    
+    PVector computerHit = new PVector(XForce, 0, ZForce);
+    ball.physics.addForce(computerHit.mult(1000));
   
     gameUI.setText("Turn", " Player");
     pickedCueBall = false;
+    ball.physics.update();
   }
   
   ball.physics.update();
@@ -266,11 +270,14 @@ void updateMouseTracker(){
       if (dist < ball.physics.radius+1){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
         directionVec.mult(2000);
+        println(directionVec);
         ball.physics.addForce(directionVec);
       }
        
       pickedCueBall = true;
-      gameUI.setText("Turn", "Computer");
+      if (enabledPvC){
+        gameUI.setText("Turn", "Computer");
+      }
       break;
     } 
   }
