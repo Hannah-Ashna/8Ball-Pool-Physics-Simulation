@@ -85,6 +85,14 @@ class Mover {
     addForce(reverseForce);
   }
   
+  void applyCustomFriction(float frictionAmt){
+    // modify the acceleration by applying
+    // a force in the opposite direction to its velociity
+    // to simulate friction
+    PVector reverseForce = PVector.mult( velocity, -frictionAmt );
+    addForce(reverseForce);
+  }
+  
   ////////////////////////////////////////////////////////////
   // new collision code
   // call collisionCheck just before or after update in the "main" tab
@@ -166,9 +174,9 @@ class Mover {
   void reverseVelocity(Mover otherMover) {
       if(otherMover == this) return; // can't collide with yourself!
        
-      this.velocity.x = this.velocity.x * -1;
+      this.velocity.x = this.velocity.x * -0.8;
       this.velocity.y = 0;
-      this.velocity.z = this.velocity.z * -1;
+      this.velocity.z = this.velocity.z * -0.8;
   }
   
   void noPassThrough(){

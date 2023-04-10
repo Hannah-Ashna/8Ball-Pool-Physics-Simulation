@@ -38,14 +38,14 @@ void setup(){
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15));
    //<>//
   // Setup Main Ball
-  ball = new SimSphereMover(vec(0,-40,0), 10.0f);
+  ball = new SimSphereMover(vec(0,-14,0), 10.0f);
   otherBalls.add(ball);
   
   // Setup Other Balls
   for (int i = 0; i < 16; i++) {
-    float XLoc = random(-110, 100);
+    float XLoc = random(-80, 80);
     float YLoc = -14;
-    float ZLoc = random(-180, 180);
+    float ZLoc = random(-160, 160);
     
     SimSphereMover newBall = new SimSphereMover(vec(XLoc, YLoc, ZLoc), 10.0f);
     
@@ -83,8 +83,6 @@ void draw(){
   PVector force = new PVector(0, 100, 0);
   ball.physics.addForce(force);
   
-  
-
   myCamera.update();
   //drawMajorAxis(new PVector(0,0,0), 200); 
   
@@ -106,6 +104,10 @@ void draw(){
     
     thisBall.physics.update();
     thisBall.drawMe();
+    
+    if(n == 0){
+      println(thisBall.physics.location);
+    }
     
     // Table Wall Collision
     wallCollisionChecks(thisBall);
@@ -139,7 +141,7 @@ SimSphereMover findCollisionWithOtherBalls(SimSphereMover thisBall, int thisBall
 
 void keyPressed(){
 
-  float force = 1000f;
+  float force = 3000f;
   
   if(key == 'c'){ 
      // toggle the camera isActive field
@@ -188,6 +190,7 @@ void moveObject(float x, float y, float z){
 void wallCollisionChecks(SimSphereMover thisBall){
   if(thisBall.collidesWith(wallLeft) ){
     thisBall.physics.reverseVelocity(wallLeft.physics);
+    //thisBall.physics.applyCustomFriction(500);
   }
   if(thisBall.collidesWith(wallRight) ){
     thisBall.physics.reverseVelocity(wallRight.physics);
@@ -201,6 +204,20 @@ void wallCollisionChecks(SimSphereMover thisBall){
   if(thisBall.collidesWith(tableBase) ){
     thisBall.physics.noPassThrough();
   }
+  /*if(thisBall.physics.location.x <= -120 || thisBall.physics.location.x >= 110){
+    if (thisBall.physics.location.x > 0) {
+      thisBall.physics.location.x = 90;
+    } else {
+      thisBall.physics.location.x = -100;
+    }
+  }
+  if(thisBall.physics.location.z <= -180 || thisBall.physics.location.z >= 180){
+    if (thisBall.physics.location.z > 0) {
+      thisBall.physics.location.z = 190;
+    } else {
+      thisBall.physics.location.z = -170;
+    }
+  }*/
   /*if(ball.collidesWith(table) ){
     println("Colliding");
     //ball.physics.noPassThrough();
