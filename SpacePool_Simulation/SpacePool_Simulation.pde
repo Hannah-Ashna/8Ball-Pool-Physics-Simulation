@@ -29,6 +29,8 @@ RadialForceObject RFO_B;
 
 SimCamera myCamera;
 SimpleUI gameUI;
+boolean enabledPvC;
+boolean pickedCueBall;
 
 void setup(){
   size(900, 700, P3D);
@@ -62,6 +64,9 @@ void init() {
   RFO_T = new RadialForceObject(vec(0, -5, -250), 2000);
   RFO_B = new RadialForceObject(vec(0, -5, 250), 2000);
   
+  enabledPvC = false;
+  pickedCueBall = false;
+  
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
   otherBalls = new ArrayList<SimSphereMover>();
@@ -91,6 +96,7 @@ void initUI(){
   gameUI = new SimpleUI();
   
   gameUI.addSimpleButton("Restart", 30, 30);
+  gameUI.addToggleButton("PvC", 100, 30);
   
   gameUI.addToggleButton("Fan (L)", 30, 65);
   gameUI.addToggleButton("Fan (R)", 100, 65);
@@ -163,6 +169,15 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
+  
+  if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
+    PVector computerHit = new PVector(random(-80, 80), 0, random(-160, 160));
+    computerHit.mult(1500);
+    ball.physics.addForce(computerHit);
+    
+    pickedCueBall = false;
+  }
+  
   ball.physics.update();
   
   myCamera.update();
@@ -204,7 +219,6 @@ void mouseDragged(){
 
 void updateMouseTracker(){
   if(mouseButton == RIGHT) return;
-  boolean pickedCueBall = false;
   
   int totalObjs = simObjectManager.getNumSimObjects();
   
@@ -222,19 +236,12 @@ void updateMouseTracker(){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
         directionVec.mult(2000);
         ball.physics.addForce(directionVec);
-        PVector frictionInfluence = PVector.mult(ball.physics.velocity, -tableBase.physics.frictionAmount);
-        print("B: " + ball.physics.velocity);
-        ball.physics.addForce(frictionInfluence);
-        print("A: " + ball.physics.velocity);
-        println();
       }
-      
+       
       pickedCueBall = true;
       break;
-    }
+    } 
   }
-  
-  //if (pickedCueBall) { return; }
 }
 
 
@@ -295,8 +302,12 @@ void handleUIEvent(UIEventData  uied){
   
   // Reset Game
   if(uied.eventIsFromWidget("Restart") ){   
-    // Not working yet???
     init();
+  }
+  
+  // Toggle PvC
+  if(uied.eventIsFromWidget("PvC") ){   
+    enabledPvC = !enabledPvC;
   }
   
   // Set Table Friction Value

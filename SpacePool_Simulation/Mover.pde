@@ -20,7 +20,7 @@ class Mover {
   
   PVector location = new PVector(width/2, height/2);
   PVector velocity = new PVector(0, 0, 0);
-  PVector acceleration = new PVector(0,0);
+  PVector acceleration = new PVector(0,0,0);
   private float mass = 1;
   float radius = 1;
   float frictionAmount = 0.3;
