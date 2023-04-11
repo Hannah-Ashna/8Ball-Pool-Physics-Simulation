@@ -237,6 +237,17 @@ void draw(){
     // Table Pocket Collision
     boolean removeBall = pocketCollisionChecks(thisBall);
     if (removeBall && n != 0){
+      
+      if (ballType.get(n) == 1) {
+        playerScore++;
+        gameUI.setText("Player Score", " " + playerScore); 
+      } else if (ballType.get(n) == 2) {
+        computerScore++;
+        gameUI.setText("Opponent Score", " " + playerScore); 
+      } else if (ballType.get(n) == 3 && !enabledPvC && otherBalls.size() > 2) {
+        gameUI.setText("Player Score", " GAME OVER - LOST" ); 
+      }
+      
       otherBalls.remove(n);
       ballType.remove(n);
     }
@@ -338,10 +349,8 @@ void updateMouseTracker(){
 void keyPressed(){
   
   if(key == 'b'){
-    print("Type: " + ballType + " - " + ballType.size());
-    print("Ball: " + otherBalls.size());
-   
-    println();
+    println("Type: " + ballType + " - " + ballType.size());
+    println("Ball: " + otherBalls.size());
   }
 
   if(key == 'c'){ 
@@ -423,6 +432,10 @@ void handleUIEvent(UIEventData  uied){
   // Reset Game
   if(uied.eventIsFromWidget("Restart") ){   
     init();
+    gameUI.setText("Player Score", " " + playerScore); 
+    gameUI.setText("Opponent Score", " " + computerScore);
+    gameUI.setText("Turn", "Solo");
+    enabledPvC = false;
   }
   
   // Toggle PvC
