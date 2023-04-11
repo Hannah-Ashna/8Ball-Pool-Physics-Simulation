@@ -51,7 +51,7 @@ void setup(){
   myCamera = new SimCamera();
   myCamera.setPositionAndLookat(vec(-26.465195, -355.21072, 283.11923),vec(-26.465223, -354.4004, 282.53326)); 
   myCamera.isMoving = false;
-  myCamera.setHUDArea(20,20,220,400);
+  myCamera.setHUDArea(20,20,220,430);
   
   initUI();
 }
@@ -96,7 +96,7 @@ void init() {
   simObjectManager.addSimObject(ball, "ball");
   
   // Setup Balls
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 15; i++) {
     float XLoc = random(-60, 60);
     float YLoc = -14;
     float ZLoc = random(-140, 140);
@@ -110,13 +110,11 @@ void init() {
        
     otherBalls.add(newBall);
     
-    if (i > 1){
-      ballType.add(2);
-    } else {
+    if (0 <= i && i <= 6){
       ballType.add(1);
-    } 
-    
-    if(i == 14){
+    } else if (7 <= i && i<= 13){
+      ballType.add(2);
+    }  else {
       ballType.add(3);
     } 
   }
@@ -161,17 +159,23 @@ void initUI(){
   w = gameUI.getWidget("Fan Strength (B)");
   w.setBounds(90, 170, 120, 30);
   
+  gameUI.addTextDisplayBox("Player Score", 30, 210, " 0");
+  w = gameUI.getWidget("Player Score");
+  w.setBounds(30, 210, 180, 20);
+  gameUI.addTextDisplayBox("Opponent Score", 100, 240, " 0");
+  w = gameUI.getWidget("Opponent Score");
+  w.setBounds(30, 240, 180, 20);
   
-  gameUI.addSlider("Force", 30, 245).setSliderValue(0.5);
+  gameUI.addSlider("Force", 30, 270).setSliderValue(0.5);
   w = gameUI.getWidget("Force");
-  w.setBounds(30, 245, 180, 30);
-  gameUI.addSlider("Friction", 30, 280).setSliderValue(0.1);
+  w.setBounds(30, 270, 180, 30);
+  gameUI.addSlider("Friction", 30, 305).setSliderValue(0.1);
   w = gameUI.getWidget("Friction");
-  w.setBounds(30, 280, 180, 30);
+  w.setBounds(30, 305, 180, 30);
   
-  gameUI.addSimpleButton("Restart", 30, 320);
+  gameUI.addSimpleButton("Restart", 30, 340);
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
-  gameUI.addMenu("Table Styles", 100, 320, styleMenuItems);
+  gameUI.addMenu("Table Styles", 100, 340, styleMenuItems);
   
   
   
@@ -215,11 +219,9 @@ void draw(){
       fill(255,255,255);
     } else if (ballType.get(n) == 1){
       fill(26,70,156);
-    } else {
+    } else if (ballType.get(n) == 2){
       fill(192,15,15);
-    } 
-    
-    if(ballType.get(n) == 3){
+    } else{
       fill(0,0,0);
     }
  
@@ -336,8 +338,8 @@ void updateMouseTracker(){
 void keyPressed(){
   
   if(key == 'b'){
-    print("Type: " + ballType);
-    print("Ball: " + otherBalls);
+    print("Type: " + ballType + " - " + ballType.size());
+    print("Ball: " + otherBalls.size());
    
     println();
   }
