@@ -65,12 +65,12 @@ void init() {
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   
-  pocket1 = new SimSphereMover(vec(-105,-14,-177), 10.0f);
-  pocket2 = new SimSphereMover(vec(105,-14,-177), 10.0f);
-  pocket3 = new SimSphereMover(vec(-105,-14,0), 10.0f);
-  pocket4 = new SimSphereMover(vec(105,-14,0), 10.0f);
-  pocket5 = new SimSphereMover(vec(-105,-14,195), 10.0f);
-  pocket6 = new SimSphereMover(vec(105,-14,195), 10.0f);
+  pocket1 = new SimSphereMover(vec(-105,-10,-177), 10.0f);
+  pocket2 = new SimSphereMover(vec(105,-10,-177), 10.0f);
+  pocket3 = new SimSphereMover(vec(-105,-10,0), 10.0f);
+  pocket4 = new SimSphereMover(vec(105,-10,0), 10.0f);
+  pocket5 = new SimSphereMover(vec(-105,-10,195), 10.0f);
+  pocket6 = new SimSphereMover(vec(105,-10,195), 10.0f);
   
   fan_L = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(-200, -25, 0));
   fan_R = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(200, -25, 0));
@@ -193,7 +193,7 @@ void draw(){
   wallTop.drawMe();
   wallBottom.drawMe();
   
-  fill(255,255,0);
+  fill(105,105,105);
   pocket1.drawMe();
   pocket2.drawMe();
   pocket3.drawMe();
@@ -243,9 +243,11 @@ void draw(){
         gameUI.setText("Player Score", " " + playerScore); 
       } else if (ballType.get(n) == 2) {
         computerScore++;
-        gameUI.setText("Opponent Score", " " + playerScore); 
+        gameUI.setText("Opponent Score", " " + computerScore); 
       } else if (ballType.get(n) == 3 && !enabledPvC && otherBalls.size() > 2) {
         gameUI.setText("Player Score", " GAME OVER - LOST" ); 
+      } else {
+        println("Uh OH: " + ballType.get(n));
       }
       
       otherBalls.remove(n);
