@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////// //<>//
 // This example builds on SimSphereMover1_CodeExample.
 // The changes are only in the first tab. The SimSphereMover and other tabs remains unaltered.
 // It adds in how you would detect collision between 2 SimSphereMover objects,
@@ -8,9 +8,16 @@
 // The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
 
 ArrayList<SimSphereMover> otherBalls;
+ArrayList<Integer> ballType;
 SimObjectManager simObjectManager = new SimObjectManager();
 
 SimSphereMover ball;
+SimSphereMover pocket1;
+SimSphereMover pocket2;
+SimSphereMover pocket3;
+SimSphereMover pocket4;
+SimSphereMover pocket5;
+SimSphereMover pocket6;
 
 SimBoxMover wallLeft;
 SimBoxMover wallRight;
@@ -31,6 +38,9 @@ SimCamera myCamera;
 SimpleUI gameUI;
 boolean enabledPvC;
 boolean pickedCueBall;
+float ballHitForce;
+int playerScore;
+int computerScore;
 
 void setup(){
   size(900, 700, P3D);
@@ -43,7 +53,7 @@ void setup(){
   myCamera.isMoving = false;
   myCamera.setHUDArea(20,20,220,400);
   
-  initUI(); //<>//
+  initUI();
 }
 
 void init() {
@@ -54,6 +64,13 @@ void init() {
   wallRight = new SimBoxMover(vec(110, -5, -200), 0,0,0, vec(0, 0, 0), vec(15,-20,400), color(170,103,8));
   wallTop = new SimBoxMover(vec(-125, -5, -200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
   wallBottom = new SimBoxMover(vec(-125, -5, 200), 0,0,0, vec(0, 0, 0), vec(250,-20,15), color(170,103,8));
+  
+  pocket1 = new SimSphereMover(vec(-105,-14,-177), 10.0f);
+  pocket2 = new SimSphereMover(vec(105,-14,-177), 10.0f);
+  pocket3 = new SimSphereMover(vec(-105,-14,0), 10.0f);
+  pocket4 = new SimSphereMover(vec(105,-14,0), 10.0f);
+  pocket5 = new SimSphereMover(vec(-105,-14,195), 10.0f);
+  pocket6 = new SimSphereMover(vec(105,-14,195), 10.0f);
   
   fan_L = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(-200, -25, 0));
   fan_R = new SimModelMover("fan.obj", vec(0,0,0), 3, 0, 0, 0, vec(200, -25, 0));
@@ -66,18 +83,23 @@ void init() {
   
   enabledPvC = false;
   pickedCueBall = false;
+  ballHitForce = 500;
+  playerScore = 0;
+  computerScore = 0;
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
   otherBalls = new ArrayList<SimSphereMover>();
+  ballType = new ArrayList<Integer>();
   otherBalls.add(ball);
+  ballType.add(0);
   simObjectManager.addSimObject(ball, "ball");
   
-  // Setup Other Balls
-  for (int i = 0; i < 15; i++) {
-    float XLoc = random(-80, 80);
+  // Setup Balls
+  for (int i = 0; i < 4; i++) {
+    float XLoc = random(-60, 60);
     float YLoc = -14;
-    float ZLoc = random(-160, 160);
+    float ZLoc = random(-140, 140);
     
     SimSphereMover newBall = new SimSphereMover(vec(XLoc, YLoc, ZLoc), 10.0f);
     
@@ -87,8 +109,17 @@ void init() {
     newBall.physics.frictionAmount = 0.3;
        
     otherBalls.add(newBall);
+    
+    if (i > 1){
+      ballType.add(2);
+    } else {
+      ballType.add(1);
+    } 
+    
+    if(i == 14){
+      ballType.add(3);
+    } 
   }
-  
 }
 
 void initUI(){
@@ -130,6 +161,10 @@ void initUI(){
   w = gameUI.getWidget("Fan Strength (B)");
   w.setBounds(90, 170, 120, 30);
   
+  
+  gameUI.addSlider("Force", 30, 245).setSliderValue(0.5);
+  w = gameUI.getWidget("Force");
+  w.setBounds(30, 245, 180, 30);
   gameUI.addSlider("Friction", 30, 280).setSliderValue(0.1);
   w = gameUI.getWidget("Friction");
   w.setBounds(30, 280, 180, 30);
@@ -154,6 +189,14 @@ void draw(){
   wallTop.drawMe();
   wallBottom.drawMe();
   
+  fill(255,255,0);
+  pocket1.drawMe();
+  pocket2.drawMe();
+  pocket3.drawMe();
+  pocket4.drawMe();
+  pocket5.drawMe();
+  pocket6.drawMe();
+  
   // Apply Gravitational Pull
   PVector force = new PVector(0, 100, 0);
   ball.physics.addForce(force);
@@ -168,18 +211,18 @@ void draw(){
       thisBall.physics.collisionResponse(otherBall.physics);
     }
     
-    if(n == 0){
+    if(ballType.get(n) == 0){
       fill(255,255,255);
-    } else if (n > 8){
+    } else if (ballType.get(n) == 1){
       fill(26,70,156);
     } else {
       fill(192,15,15);
     } 
     
-    if(n == 14){
+    if(ballType.get(n) == 3){
       fill(0,0,0);
     }
-    
+ 
     thisBall.physics.update();
     thisBall.drawMe();
     
@@ -188,7 +231,13 @@ void draw(){
     
     // Fan Radial Force Checks
     fanRadialForceChecks(thisBall);
-
+    
+    // Table Pocket Collision
+    boolean removeBall = pocketCollisionChecks(thisBall);
+    if (removeBall && n != 0){
+      otherBalls.remove(n);
+      ballType.remove(n);
+    }
   }
   
   if (RFO_L.isActive){ fan_L.Rx += 0.1; fan_L.drawMe(); }
@@ -196,7 +245,7 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
   
-  println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
+  //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
   
   // Check if Computer is allowed to and capable of making the next move
   if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
@@ -269,8 +318,8 @@ void updateMouseTracker(){
       
       if (dist < ball.physics.radius+1){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
-        directionVec.mult(2000);
-        println(directionVec);
+        directionVec.mult(ballHitForce);
+        directionVec.y = -14;
         ball.physics.addForce(directionVec);
       }
        
@@ -285,6 +334,13 @@ void updateMouseTracker(){
 
 
 void keyPressed(){
+  
+  if(key == 'b'){
+    print("Type: " + ballType);
+    print("Ball: " + otherBalls);
+   
+    println();
+  }
 
   if(key == 'c'){ 
      // toggle the camera isActive field
@@ -336,6 +392,29 @@ void fanRadialForceChecks(SimSphereMover thisBall){
   }
 }
 
+boolean pocketCollisionChecks(SimSphereMover thisBall){
+  if(thisBall.collidesWith(pocket1) ){
+    return true;
+  }
+  if(thisBall.collidesWith(pocket2) ){
+    return true;
+  }
+  if(thisBall.collidesWith(pocket3) ){
+    return true;
+  }
+  if(thisBall.collidesWith(pocket4) ){
+    return true;
+  }
+  if(thisBall.collidesWith(pocket5) ){
+    return true;
+  }
+  if(thisBall.collidesWith(pocket6) ){
+    return true;
+  }
+  
+  return false;
+}
+
 void handleUIEvent(UIEventData  uied){
   uied.print(0);
   
@@ -360,6 +439,11 @@ void handleUIEvent(UIEventData  uied){
   if(uied.eventIsFromWidget("Friction") ){
     float frictionVal = uied.sliderValue * 5;
     tableBase.physics.frictionAmount = frictionVal;
+  }
+  
+  // Set Ball Hit Force Value
+  if(uied.eventIsFromWidget("Force") ){
+    ballHitForce = uied.sliderValue * 1000;
   }
   
   // Fan Toggle + Slider Checks
