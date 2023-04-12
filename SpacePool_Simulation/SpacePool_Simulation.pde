@@ -83,7 +83,7 @@ void init() {
   
   enabledPvC = false;
   pickedCueBall = false;
-  ballHitForce = 500;
+  ballHitForce = 1000;
   playerScore = 0;
   computerScore = 0;
   
@@ -252,6 +252,9 @@ void draw(){
       
       otherBalls.remove(n);
       ballType.remove(n);
+    } else if (removeBall && n == 0 ) {
+      thisBall.physics.velocity = new PVector(0,0,0);
+      thisBall.physics.location = new PVector(0,-14,0);
     }
   }
   
@@ -333,8 +336,11 @@ void updateMouseTracker(){
       
       if (dist < ball.physics.radius+1){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
-        directionVec.mult(ballHitForce);
+        if (directionVec.x > 0 ) { directionVec.x = ballHitForce; } else { directionVec.x = -ballHitForce; }
+        if (directionVec.z > 0 ) { directionVec.z = ballHitForce; } else { directionVec.z = -ballHitForce; }
         directionVec.y = -14;
+        
+        //directionVec.mult(ballHitForce);
         ball.physics.addForce(directionVec);
       }
        
@@ -460,7 +466,7 @@ void handleUIEvent(UIEventData  uied){
   
   // Set Ball Hit Force Value
   if(uied.eventIsFromWidget("Force") ){
-    ballHitForce = uied.sliderValue * 1000;
+    ballHitForce = uied.sliderValue * 2000;
   }
   
   // Fan Toggle + Slider Checks
