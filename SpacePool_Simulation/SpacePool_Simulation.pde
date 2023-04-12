@@ -205,6 +205,26 @@ void draw(){
   PVector force = new PVector(0, 100, 0);
   ball.physics.addForce(force);
   
+  println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
+  
+  // Check if Computer is allowed to and capable of making the next move
+  if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
+    float XForce = 5;
+    float ZForce = 5;
+    
+    if (random(0, 10) > 4 ) { XForce = XForce * -1; }
+    if (random(0, 10) > 4 ) { ZForce = ZForce * -1; }
+    
+    PVector computerHit = new PVector(XForce, 0, ZForce).mult(ballHitForce);
+    println("Computer Hit: " + computerHit);
+    ball.physics.addForce(computerHit);
+    //ball.physics.update();
+    
+    gameUI.setText("Turn", " Player");
+    pickedCueBall = false;
+    
+  }
+  
   // Check for collisions with other balls
   for(int n = 0; n < otherBalls.size(); n++){
     SimSphereMover thisBall = otherBalls.get(n);
@@ -262,25 +282,7 @@ void draw(){
   if (RFO_R.isActive){ fan_R.Rx += 0.1; fan_R.drawMe(); }
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
-  
-  //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
-  
-  // Check if Computer is allowed to and capable of making the next move
-  if (pickedCueBall && enabledPvC && (ball.physics.velocity.mag() <= 2)){
-    float XForce = 3000;
-    float ZForce = 3000;
-    
-    if (random(0, 1) == 1) { XForce = XForce * -1; } 
-    if (random(0, 1) == 1) { ZForce = ZForce * -1; } 
-    
-    PVector computerHit = new PVector(XForce, 0, ZForce);
-    ball.physics.addForce(computerHit.mult(1000));
-  
-    gameUI.setText("Turn", " Player");
-    pickedCueBall = false;
-    ball.physics.update();
-  }
-  
+
   ball.physics.update();
   
   myCamera.update();
