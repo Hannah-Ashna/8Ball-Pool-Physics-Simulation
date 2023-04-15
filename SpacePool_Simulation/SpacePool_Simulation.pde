@@ -39,6 +39,7 @@ SimpleUI gameUI;
 boolean enabledPvC;
 boolean pickedCueBall;
 float ballHitForce;
+float ballMass;
 int playerScore;
 int computerScore;
 
@@ -86,11 +87,16 @@ void init() {
   ballHitForce = 1000;
   playerScore = 0;
   computerScore = 0;
+  ballMass = 1*0.15;
+  
+  // Setup Arrays
+  otherBalls = new ArrayList<SimSphereMover>();
+  ballType = new ArrayList<Integer>();
   
   // Setup Main Ball
   ball = new SimSphereMover(vec(0,-14,0), 10.0f);
-  otherBalls = new ArrayList<SimSphereMover>();
-  ballType = new ArrayList<Integer>();
+  ball.physics.mass = ballMass;
+  ball.physics.frictionAmount = 0.3;
   otherBalls.add(ball);
   ballType.add(0);
   simObjectManager.addSimObject(ball, "ball");
@@ -105,7 +111,7 @@ void init() {
     
     newBall.physics.radius = 10.0f;
     newBall.physics.velocity =  new PVector(0,0,0);
-    newBall.physics.setMass(0.5);
+    newBall.physics.mass = ballMass;
     newBall.physics.frictionAmount = 0.3;
        
     otherBalls.add(newBall);
@@ -207,9 +213,7 @@ void draw(){
   pocket5.drawMe();
   pocket6.drawMe();
   
-  // Apply Gravitational Pull
-  PVector force = new PVector(0, 100, 0);
-  ball.physics.addForce(force);
+  
   
   //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
   
@@ -222,9 +226,8 @@ void draw(){
     if (random(0, 10) > 4 ) { ZForce = ZForce * -1; }
     
     PVector computerHit = new PVector(XForce, 0, ZForce).mult(ballHitForce);
-    println("Computer Hit: " + computerHit);
+    //println("Computer Hit: " + computerHit);
     ball.physics.addForce(computerHit);
-    //ball.physics.update();
     
     gameUI.setText("Turn", " Player");
     pickedCueBall = false;
@@ -251,7 +254,13 @@ void draw(){
       fill(0,0,0);
     }
  
+    // Apply Gravitational Pull
+    PVector force = new PVector(0, 100, 0);
+    thisBall.physics.addForce(force);
+ 
     thisBall.physics.update();
+    //thisBall.physics.setMass(ballMass);
+    //thisBall.setRadius(thisBall.physics.radius);
     thisBall.drawMe();
     
     // Table Wall Collision
@@ -282,14 +291,21 @@ void draw(){
       thisBall.physics.velocity = new PVector(0,0,0);
       thisBall.physics.location = new PVector(0,-14,0);
     }
+    
+    /*print("Radius: ");
+    print(thisBall.physics.radius + " " );
+    print("Mass: ");
+    print(thisBall.physics.mass + " " );*/
   }
+  
+  //println();
   
   if (RFO_L.isActive){ fan_L.Rx += 0.1; fan_L.drawMe(); }
   if (RFO_R.isActive){ fan_R.Rx += 0.1; fan_R.drawMe(); }
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
 
-  ball.physics.update();
+  //ball.physics.update();
   
   myCamera.update();
   myCamera.startDrawHUD();
@@ -346,7 +362,7 @@ void updateMouseTracker(){
         PVector directionVec = PVector.sub(ballPos, intersectionPoint);
         if (directionVec.x > 0 ) { directionVec.x = ballHitForce; } else { directionVec.x = -ballHitForce; }
         if (directionVec.z > 0 ) { directionVec.z = ballHitForce; } else { directionVec.z = -ballHitForce; }
-        directionVec.y = -14;
+        //directionVec.y = -14;
         
         //directionVec.mult(ballHitForce);
         ball.physics.addForce(directionVec);
@@ -364,9 +380,8 @@ void updateMouseTracker(){
 
 void keyPressed(){
   
-  if(key == 'b'){
-    println("Type: " + ballType + " - " + ballType.size());
-    println("Ball: " + otherBalls.size());
+  if(key == 'p'){
+    
   }
 
   if(key == 'c'){ 
@@ -475,6 +490,13 @@ void handleUIEvent(UIEventData  uied){
   // Set Ball Hit Force Value
   if(uied.eventIsFromWidget("Ball Force") ){
     ballHitForce = uied.sliderValue * 2000;
+  }
+  
+  // Set Ball Mass Value
+  if(uied.eventIsFromWidget("Ball Mass") ){
+    if (uied.sliderValue < 0.1){ ballMass = 1 * 0.15;}
+    else {ballMass = uied.sliderValue * 0.15; }
+    println("New Mass: " + ballMass);
   }
   
   // Fan Toggle + Slider Checks
