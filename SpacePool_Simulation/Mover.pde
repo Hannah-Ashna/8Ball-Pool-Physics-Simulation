@@ -37,8 +37,8 @@ class Mover {
   void setMass(float m){
     // converts mass into surface area
     mass=m;
-    radius = 60 * sqrt( mass/ PI );
-    
+    //radius = 60 * sqrt( mass/ PI );
+    radius = m * 10;
   }
   
   
@@ -46,7 +46,6 @@ class Mover {
     float ellapsedTime = timer.getElapsedTime();
     
     applyFriction();
-    //radius = 60 * sqrt( (mass/100)/ PI );
     
     // scale the acceleration by time elapsed
     PVector accelerationOverTime = PVector.mult(acceleration, ellapsedTime);
@@ -58,8 +57,6 @@ class Mover {
     
     // now that you have "used" your accleration it needs to be re-zeroed
     acceleration = new PVector(0,0);
-    
-   
   }
   
   void addForce(PVector f){

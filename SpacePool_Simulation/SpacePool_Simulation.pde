@@ -30,6 +30,7 @@ RadialForceObject RFO_B;
 
 SimCamera myCamera;
 SimpleUI gameUI;
+PVector gravity;
 boolean enabledPvC;
 boolean pickedCueBall;
 float ballHitForce;
@@ -81,7 +82,8 @@ void init() {
   ballHitForce = 1000;
   playerScore = 0;
   computerScore = 0;
-  ballMass = 1*0.15;
+  ballMass = 1;
+  gravity = new PVector(0, 100, 0);
   
   // Setup Arrays
   otherBalls = new ArrayList<SimSphereMover>();
@@ -176,10 +178,13 @@ void initUI(){
   gameUI.addSlider("Table Friction", 30, 340).setSliderValue(0.1);
   w = gameUI.getWidget("Table Friction");
   w.setBounds(30, 340, 180, 30);
+  gameUI.addSlider("Gravity", 30, 375).setSliderValue(0.1);
+  w = gameUI.getWidget("Gravity");
+  w.setBounds(30, 375, 180, 30);
   
-  gameUI.addSimpleButton("Restart", 30, 380);
+  gameUI.addSimpleButton("Restart", 30, 410);
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
-  gameUI.addMenu("Table Styles", 110, 380, styleMenuItems);
+  gameUI.addMenu("Table Styles", 110, 410, styleMenuItems);
   
 }
 
@@ -243,12 +248,12 @@ void draw(){
     }
  
     // Apply Gravitational Pull
-    PVector force = new PVector(0, 100, 0);
-    thisBall.physics.addForce(force);
+    thisBall.physics.addForce(gravity);
+    println("Gravity: ", gravity);
  
     thisBall.physics.update();
-    //thisBall.physics.setMass(ballMass);
-    //thisBall.setRadius(thisBall.physics.radius);
+    thisBall.physics.setMass(ballMass);
+    thisBall.setRadius(thisBall.physics.radius);
     thisBall.drawMe();
     
     // Table Wall Collision
@@ -283,16 +288,8 @@ void draw(){
       thisBall.physics.velocity = new PVector(0,0,0);
       thisBall.physics.location = new PVector(0,-14,0);
     }
-    
-    /*print("Radius: ");
-    print(thisBall.physics.radius + " " );
-    print("Mass: ");
-    print(thisBall.physics.mass + " " );*/
-    //thisBall.physics.update();
   }
-  
-  //println();
-  
+
   if (RFO_L.isActive){ fan_L.Rx += 0.1; fan_L.drawMe(); }
   if (RFO_R.isActive){ fan_R.Rx += 0.1; fan_R.drawMe(); }
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
@@ -372,7 +369,7 @@ void updateMouseTracker(){
 void keyPressed(){
   
   if(key == 'p'){
-    
+    println("Mass: " + ball.physics.mass + " PRadius: " + ball.physics.radius + " SRadius: " + ball.getRadius());
   }
 
   if(key == 'c'){ 
@@ -478,6 +475,15 @@ void handleUIEvent(UIEventData  uied){
     tableBase.physics.frictionAmount = frictionVal;
   }
   
+    // Set Gravity Value
+  if(uied.eventIsFromWidget("Gravity") ){
+    if (uied.sliderValue <= 0.5) {
+      gravity = new PVector(0, -100, 0);
+    } else {
+      gravity = new PVector(0, 100, 0);
+    }     
+  }
+  
   // Set Ball Hit Force Value
   if(uied.eventIsFromWidget("Ball Force") ){
     ballHitForce = uied.sliderValue * 2000;
@@ -485,9 +491,9 @@ void handleUIEvent(UIEventData  uied){
   
   // Set Ball Mass Value
   if(uied.eventIsFromWidget("Ball Mass") ){
-    if (uied.sliderValue < 0.1){ ballMass = 1 * 0.15;}
-    else {ballMass = uied.sliderValue * 0.15; }
-    println("New Mass: " + ballMass);
+    if (uied.sliderValue * 2 < 1){ ballMass = 1;}
+    else {ballMass = uied.sliderValue * 2; }
+    //println("New Mass: " + ballMass);
   }
   
   // Fan Toggle + Slider Checks
