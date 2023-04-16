@@ -1,11 +1,5 @@
-/////////////////////////////////////////////////////////////// //<>//
-// This example builds on SimSphereMover1_CodeExample.
-// The changes are only in the first tab. The SimSphereMover and other tabs remains unaltered.
-// It adds in how you would detect collision between 2 SimSphereMover objects,
-// and how you would use the physics component of the SimSphereMover to produce
-// the collision response - i.e. how they bounce off each other.
-
-// The scene is set up so that if you just press the "W" key, ball sould move and collide with ball2
+import processing.sound.*; //<>//
+SoundFile hitSFX;
 
 ArrayList<SimSphereMover> otherBalls;
 ArrayList<Integer> ballType;
@@ -129,7 +123,6 @@ void init() {
 void initUI(){
   // Setup UI
   gameUI = new SimpleUI();
-  
   Widget w;
   
   gameUI.addToggleButton("PvC", 30, 30);
@@ -184,19 +177,15 @@ void initUI(){
   w = gameUI.getWidget("Table Friction");
   w.setBounds(30, 340, 180, 30);
   
-  
   gameUI.addSimpleButton("Restart", 30, 380);
   String[] styleMenuItems = {"Standard","Dracula","Icy"};
   gameUI.addMenu("Table Styles", 110, 380, styleMenuItems);
-  
-  
   
 }
 
 void draw(){
   background(0);
   lights();
-  
   noStroke();
   
   tableBase.drawMe();
@@ -212,8 +201,6 @@ void draw(){
   pocket4.drawMe();
   pocket5.drawMe();
   pocket6.drawMe();
-  
-  
   
   //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
   
@@ -233,7 +220,7 @@ void draw(){
     pickedCueBall = false;
     
   }
-  
+
   // Check for collisions with other balls
   for(int n = 0; n < otherBalls.size(); n++){
     SimSphereMover thisBall = otherBalls.get(n);
@@ -242,6 +229,7 @@ void draw(){
     if(otherBall != null) {
       // if this ball collides with some other SimMover 
       thisBall.physics.collisionResponse(otherBall.physics);
+      // Get Ambience Audio Setup
     }
     
     if(ballType.get(n) == 0){
@@ -272,15 +260,19 @@ void draw(){
     // Table Pocket Collision
     boolean removeBall = pocketCollisionChecks(thisBall);
     if (removeBall && n != 0){
+      hitSFX = new SoundFile(this, "ballHitSFX.wav");
       
       if (ballType.get(n) == 1) {
         playerScore++;
-        gameUI.setText("Player Score", " " + playerScore); 
+        gameUI.setText("Player Score", " " + playerScore);
+        hitSFX.play();
       } else if (ballType.get(n) == 2) {
         computerScore++;
         gameUI.setText("Opponent Score", " " + computerScore); 
+        hitSFX.play();
       } else if (ballType.get(n) == 3 && !enabledPvC && otherBalls.size() > 2) {
         gameUI.setText("Player Score", " GAME OVER - LOST" ); 
+        hitSFX.play();
       } else {
         println("Uh OH: " + ballType.get(n));
       }
@@ -296,6 +288,7 @@ void draw(){
     print(thisBall.physics.radius + " " );
     print("Mass: ");
     print(thisBall.physics.mass + " " );*/
+    //thisBall.physics.update();
   }
   
   //println();
@@ -305,8 +298,6 @@ void draw(){
   if (RFO_T.isActive){ fan_T.Rz += 0.1; fan_T.drawMe(); }
   if (RFO_B.isActive){ fan_B.Rz += 0.1; fan_B.drawMe(); }
 
-  //ball.physics.update();
-  
   myCamera.update();
   myCamera.startDrawHUD();
   gameUI.update();
@@ -483,7 +474,7 @@ void handleUIEvent(UIEventData  uied){
   
   // Set Table Friction Value
   if(uied.eventIsFromWidget("Table Friction") ){
-    float frictionVal = uied.sliderValue * 5;
+    float frictionVal = uied.sliderValue * 2;
     tableBase.physics.frictionAmount = frictionVal;
   }
   
