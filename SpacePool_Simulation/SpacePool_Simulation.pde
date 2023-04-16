@@ -30,7 +30,9 @@ RadialForceObject RFO_B;
 
 SimCamera myCamera;
 SimpleUI gameUI;
+SimRay cueBallRay;
 PVector gravity;
+PVector ballHitDirectionVec;
 boolean enabledPvC;
 boolean pickedCueBall;
 float ballHitForce;
@@ -84,6 +86,7 @@ void init() {
   computerScore = 0;
   ballMass = 1;
   gravity = new PVector(0, 100, 0);
+  ballHitDirectionVec = new PVector (0,0,0);
   
   // Setup Arrays
   otherBalls = new ArrayList<SimSphereMover>();
@@ -96,6 +99,7 @@ void init() {
   otherBalls.add(ball);
   ballType.add(0);
   simObjectManager.addSimObject(ball, "ball");
+  cueBallRay = new SimRay(ball.getOrigin(), PVector.add(ball.getOrigin(),vec(0,0,0)));
   
   // Setup Balls
   for (int i = 0; i < 15; i++) {
@@ -207,6 +211,8 @@ void draw(){
   pocket5.drawMe();
   pocket6.drawMe();
   
+  
+  drawRay(cueBallRay, color(255,0,0));
   //println ("P: " + pickedCueBall, " E: " + enabledPvC, " M: " +(ball.physics.velocity.mag()));
   
   // Check if Computer is allowed to and capable of making the next move
@@ -249,7 +255,7 @@ void draw(){
  
     // Apply Gravitational Pull
     thisBall.physics.addForce(gravity);
-    println("Gravity: ", gravity);
+    //println("Gravity: ", gravity);
  
     thisBall.physics.update();
     thisBall.physics.setMass(ballMass);
@@ -302,10 +308,10 @@ void draw(){
   //drawMajorAxis(new PVector(0,0,0), 200); 
 }
 
-void drawray(SimRay r){
+void drawRay(SimRay r, color c){
   PVector farPoint = r.getPointAtDistance(1000);
   pushStyle();  
-  stroke(255,100,100); 
+  stroke(c); 
   line(r.origin.x, r.origin.y, r.origin.z, farPoint.x, farPoint.y, farPoint.z);
   popStyle();
 }
@@ -324,14 +330,18 @@ SimSphereMover findCollisionWithOtherBalls(SimSphereMover thisBall, int thisBall
 }
 
 void mousePressed(){
-  updateMouseTracker();
+  updateMouseTrackerRay();
 }
 
 void mouseDragged(){
-  updateMouseTracker();
+  updateMouseTrackerRay();
 }
 
-void updateMouseTracker(){
+void mouseReleased(){
+  updateMouseTrackerHit();
+}
+
+void updateMouseTrackerRay(){
   if(mouseButton == RIGHT) return;
   
   int totalObjs = simObjectManager.getNumSimObjects();
@@ -340,36 +350,57 @@ void updateMouseTracker(){
     SimTransform obj = simObjectManager.getSimObject(n);
     SimRay mouseRay = myCamera.getMouseRay();
     mouseRay.setID("Mouse Ray");
-    
+
     if(mouseRay.calcIntersection(obj)){
       PVector intersectionPoint = mouseRay.getIntersectionPoint();
       PVector ballPos = ball.physics.location;
       float dist = intersectionPoint.dist(ballPos);
       
-      if (dist < ball.physics.radius+1){
-        PVector directionVec = PVector.sub(ballPos, intersectionPoint);
-        if (directionVec.x > 0 ) { directionVec.x = ballHitForce; } else { directionVec.x = -ballHitForce; }
-        if (directionVec.z > 0 ) { directionVec.z = ballHitForce; } else { directionVec.z = -ballHitForce; }
-        //directionVec.y = -14;
-        
-        //directionVec.mult(ballHitForce);
-        ball.physics.addForce(directionVec);
-      }
-       
-      pickedCueBall = true;
-      if (enabledPvC){
-        gameUI.setText("Turn", "Computer");
+      println("D: " + dist + " R" + ball.physics.radius);
+      
+      if (dist < ball.physics.radius + 5){
+        ballHitDirectionVec = PVector.sub(ballPos, intersectionPoint);
+        ballHitDirectionVec.y = 0;
+        cueBallRay = new SimRay(ball.getOrigin(), PVector.add(ball.getOrigin(),ballHitDirectionVec));
       }
       break;
     } 
   }
 }
 
+void updateMouseTrackerHit(){
+  if(mouseButton == RIGHT) return;
+  
+  int totalObjs = simObjectManager.getNumSimObjects();
+  
+  for (int n = 0; n < totalObjs; n++){
+    SimTransform obj = simObjectManager.getSimObject(n);
+    SimRay mouseRay = myCamera.getMouseRay();
+    mouseRay.setID("Mouse Ray");
+
+    if(mouseRay.calcIntersection(obj)){
+      PVector intersectionPoint = mouseRay.getIntersectionPoint();
+      PVector ballPos = ball.physics.location;
+      float dist = intersectionPoint.dist(ballPos);
+      
+      if (dist < ball.physics.radius + 5){
+        cueBallRay = new SimRay(ball.getOrigin(), PVector.add(ball.getOrigin(),vec(0,0,0)));
+        ballHitDirectionVec.mult(ballHitForce);
+        ball.physics.addForce(ballHitDirectionVec);
+        
+        pickedCueBall = true;
+        if (enabledPvC){ gameUI.setText("Turn", "Computer"); }
+      }
+      break;
+    } 
+  }  
+}
+
 
 void keyPressed(){
   
-  if(key == 'p'){
-    println("Mass: " + ball.physics.mass + " PRadius: " + ball.physics.radius + " SRadius: " + ball.getRadius());
+  if(key == 'r'){
+    myCamera.setPositionAndLookat(vec(-26.465195, -355.21072, 283.11923),vec(-26.465223, -354.4004, 282.53326));
   }
 
   if(key == 'c'){ 
