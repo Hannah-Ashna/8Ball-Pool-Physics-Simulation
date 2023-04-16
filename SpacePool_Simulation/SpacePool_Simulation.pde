@@ -37,6 +37,7 @@ boolean enabledPvC;
 boolean pickedCueBall;
 float ballHitForce;
 float ballMass;
+float ballRadius;
 int playerScore;
 int computerScore;
 
@@ -85,6 +86,7 @@ void init() {
   playerScore = 0;
   computerScore = 0;
   ballMass = 1;
+  ballRadius = 1;
   gravity = new PVector(0, 100, 0);
   ballHitDirectionVec = new PVector (0,0,0);
   
@@ -173,17 +175,17 @@ void initUI(){
   w = gameUI.getWidget("Opponent Score");
   w.setBounds(30, 240, 180, 20);
   
-  gameUI.addSlider("Ball Force", 30, 270).setSliderValue(0.5);
-  w = gameUI.getWidget("Ball Force");
+  gameUI.addSlider("Cue Ball Force", 30, 270).setSliderValue(0.5);
+  w = gameUI.getWidget("Cue Ball Force");
   w.setBounds(30, 270, 180, 30);
   gameUI.addSlider("Ball Mass", 30, 305).setSliderValue(0.1);
   w = gameUI.getWidget("Ball Mass");
   w.setBounds(30, 305, 180, 30);
-  gameUI.addSlider("Table Friction", 30, 340).setSliderValue(0.1);
-  w = gameUI.getWidget("Table Friction");
+  gameUI.addSlider("Ball Size", 30, 340).setSliderValue(0.6);
+  w = gameUI.getWidget("Ball Size");
   w.setBounds(30, 340, 180, 30);
-  gameUI.addSlider("Gravity", 30, 375).setSliderValue(0.1);
-  w = gameUI.getWidget("Gravity");
+  gameUI.addSlider("Table Friction", 30, 375).setSliderValue(0.1);
+  w = gameUI.getWidget("Table Friction");
   w.setBounds(30, 375, 180, 30);
   
   gameUI.addSimpleButton("Restart", 30, 410);
@@ -249,16 +251,18 @@ void draw(){
       fill(26,70,156);
     } else if (ballType.get(n) == 2){
       fill(192,15,15);
-    } else{
+    } else if (ballType.get(n) == 3){
       fill(0,0,0);
+    } else {
+      fill(128, 0, 128);
     }
  
     // Apply Gravitational Pull
     thisBall.physics.addForce(gravity);
-    //println("Gravity: ", gravity);
  
     thisBall.physics.update();
     thisBall.physics.setMass(ballMass);
+    thisBall.physics.setRadius(ballRadius);
     thisBall.setRadius(thisBall.physics.radius);
     thisBall.drawMe();
     
@@ -283,6 +287,12 @@ void draw(){
         hitSFX.play();
       } else if (ballType.get(n) == 3 && !enabledPvC && otherBalls.size() > 2) {
         gameUI.setText("Player Score", " GAME OVER - LOST" ); 
+        hitSFX.play();
+      } else if (ballType.get(n) == 4) {
+        playerScore++;
+        gameUI.setText("Player Score", " " + playerScore);
+        computerScore++;
+        gameUI.setText("Opponent Score", " " + computerScore);
         hitSFX.play();
       } else {
         println("Uh OH: " + ballType.get(n));
@@ -397,7 +407,25 @@ void updateMouseTrackerHit(){
 
 void keyPressed(){
   
+  if(key == 'b'){
+    // Add more balls
+    float XLoc = random(-60, 60);
+    float YLoc = -40;
+    float ZLoc = random(-140, 140);
+    
+    SimSphereMover newBall = new SimSphereMover(vec(XLoc, YLoc, ZLoc), 10.0f);
+    
+    newBall.physics.radius = 10.0f;
+    newBall.physics.velocity =  new PVector(0,0,0);
+    newBall.physics.mass = ballMass;
+    newBall.physics.frictionAmount = 0.3;
+       
+    otherBalls.add(newBall);
+    ballType.add(4);
+  }
+  
   if(key == 'r'){
+    // reset camera position
     myCamera.setPositionAndLookat(vec(-26.465195, -355.21072, 283.11923),vec(-26.465223, -354.4004, 282.53326));
   }
 
@@ -504,25 +532,27 @@ void handleUIEvent(UIEventData  uied){
     tableBase.physics.frictionAmount = frictionVal;
   }
   
-    // Set Gravity Value
-  if(uied.eventIsFromWidget("Gravity") ){
-    if (uied.sliderValue <= 0.5) {
-      gravity = new PVector(0, -100, 0);
-    } else {
-      gravity = new PVector(0, 100, 0);
-    }     
-  }
-  
   // Set Ball Hit Force Value
-  if(uied.eventIsFromWidget("Ball Force") ){
+  if(uied.eventIsFromWidget("Cue Ball Force") ){
     ballHitForce = uied.sliderValue * 2000;
   }
   
   // Set Ball Mass Value
   if(uied.eventIsFromWidget("Ball Mass") ){
-    if (uied.sliderValue * 2 < 1){ ballMass = 1;}
-    else {ballMass = uied.sliderValue * 2; }
-    //println("New Mass: " + ballMass);
+    if (uied.sliderValue * 10 < 1) {
+      ballMass = 1;
+    } else { 
+      ballMass = uied.sliderValue * 10;
+    }  
+  }
+  
+  // Set Ball Radius Value
+  if(uied.eventIsFromWidget("Ball Size") ){  
+    if (uied.sliderValue * 1.5 < 0.1){ 
+      ballRadius = 1;
+    } else { 
+      ballRadius = uied.sliderValue * 1.5 ; 
+    }
   }
   
   // Fan Toggle + Slider Checks

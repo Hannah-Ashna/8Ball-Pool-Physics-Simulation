@@ -18,7 +18,7 @@ class Mover {
 
   Timer timer = new Timer();
   
-  PVector location = new PVector(width/2, height/2);
+  PVector location = new PVector(0, 0 ,0);
   PVector velocity = new PVector(0, 0, 0);
   PVector acceleration = new PVector(0,0,0);
   float mass = 1;
@@ -35,10 +35,11 @@ class Mover {
   // required for drawing and collision checking
   
   void setMass(float m){
-    // converts mass into surface area
     mass=m;
-    //radius = 60 * sqrt( mass/ PI );
-    radius = m * 10;
+  }
+  
+  void setRadius(float r){
+    radius = r * 10;
   }
   
   
