@@ -355,9 +355,7 @@ void updateMouseTrackerRay(){
       PVector intersectionPoint = mouseRay.getIntersectionPoint();
       PVector ballPos = ball.physics.location;
       float dist = intersectionPoint.dist(ballPos);
-      
-      println("D: " + dist + " R" + ball.physics.radius);
-      
+
       if (dist < ball.physics.radius + 5){
         ballHitDirectionVec = PVector.sub(ballPos, intersectionPoint);
         ballHitDirectionVec.y = 0;
